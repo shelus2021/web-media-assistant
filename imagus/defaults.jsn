@@ -1,0 +1,21 @@
+{
+  "hz": {
+    "deactivate": 0, "actTrigger": "m2", "delay": 300, "delayOnIdle": true,
+    "waitHide": false, "markOnHover": "cr", "preload": 0,
+    "hiRes": true,
+    "capStyle": 0,
+    "capPos": 1, "capWrapByDef": false, "capText": true, "capLinkText": true,
+    "capWH": true, "capQuality": true, "fzOnPress": 1, "fzCloseClick": 1,
+    "placement": 4,
+    "hideIdleCursor": 500,
+    "css": "margin: 3px 3px 20px; background: #f8f8ff padding-box; border: 3px solid hsla(0,0%,95%,.6); border-radius: 2px; box-shadow: 0 0 2px #666",
+    "scOffInInput": true, "LDRsrc": "", "LDRcss": "",
+    "LDRdelay": 300, "LDRbgOpacity": 100, "LDRanimate": true
+  },
+  "keys": {
+    "mOrig": "1", "mFit": "2", "mFitW": "3", "mFitH": "4",
+    "rotL": "E", "rotR": "R", "flipH": "Q", "flipV": "W",
+    "hz_preload": "L", "hz_hiRes": "Tab", "hz_fullZm": "Z",
+    "hz_caption": "C", "hz_open": "O"
+  }
+}

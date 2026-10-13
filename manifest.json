@@ -1,0 +1,55 @@
+{
+  "name": "__MSG_extensionName__",
+  "short_name": "__MSG_extensionShortName__",
+  "version": "0.1.37",
+  "manifest_version": 2,
+  "description": "__MSG_extensionDescription__",
+  "homepage_url": "https://github.com/shelus2021/web-media-assistant",
+  "default_locale": "zh_CN",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "web-media-assistant@shelus2021.github",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  },
+  "incognito": "spanning",
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "permissions": ["storage", "tabs", "webRequest", "webRequestBlocking", "downloads", "clipboardWrite", "alarms", "<all_urls>"],
+  "background": {
+    "scripts": [
+      "js/firefox.js", "js/i18n.js", "js/defaults.js", "lib/mux.min.js",
+      "js/init.js", "js/background.js", "js/hls-downloader.js",
+      "imagus/js/app_bg.js", "imagus/js/feature-gate.js", "imagus/js/background.js"
+    ]
+  },
+  "browser_action": {
+    "default_title": "__MSG_browserActionTitle__",
+    "default_icon": { "19": "icons/icon19.png", "38": "icons/icon38.png", "48": "icons/icon48.png" },
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "match_about_blank": true,
+      "exclude_matches": ["https://plus.google.com/hangouts/*", "https://hangouts.google.com/*", "https://meet.google.com/*"],
+      "css": ["inject.css"],
+      "js": ["js/i18n.js", "js/defaults.js", "inject.js"]
+    },
+    {
+      "all_frames": true,
+      "matches": ["<all_urls>"],
+      "match_about_blank": true,
+      "run_at": "document_start",
+      "js": ["imagus/includes/app.js"]
+    },
+    {
+      "all_frames": true,
+      "matches": ["<all_urls>"],
+      "match_about_blank": true,
+      "run_at": "document_end",
+      "js": ["imagus/includes/content.js"]
+    }
+  ],
+  "web_accessible_resources": ["inject.css", "shadow.css"]
+}

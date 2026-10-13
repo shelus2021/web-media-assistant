@@ -1,0 +1,725 @@
+{
+  "extensionName": {
+    "message": "Web Media Assistant"
+  },
+  "extensionShortName": {
+    "message": "Media Assistant"
+  },
+  "extensionDescription": {
+    "message": "Playback controls, media discovery, and hover image previews"
+  },
+  "browserActionTitle": {
+    "message": "Web Media Assistant\n0 media resources found on this page"
+  },
+  "playbackControlTitle": {
+    "message": "Playback controls"
+  },
+  "playbackControlSubtitle": {
+    "message": "Shortcuts, speed, and controller settings"
+  },
+  "togglePlayback": {
+    "message": "Enable or disable playback controls"
+  },
+  "playbackStatus": {
+    "message": "Playback controls $1"
+  },
+  "imagePreviewTitle": {
+    "message": "Image preview"
+  },
+  "imagePreviewSubtitle": {
+    "message": "Hover to preview full images and animations"
+  },
+  "toggleImagePreview": {
+    "message": "Enable or disable image previews"
+  },
+  "imagePreviewStatus": {
+    "message": "Image preview $1"
+  },
+  "imagePreviewSettingsTitle": { "message": "Preview options" },
+  "imagePreviewSettingsSubtitle": { "message": "Activation, loading, captions, pinning, and appearance" },
+  "imagePreviewRulesTitle": { "message": "Preview rules" },
+  "imagePreviewRulesSubtitle": { "message": "Manage site resolvers and import or export rules" },
+  "imagePreviewRulesWarning": { "message": "Rules can contain scripts. Only import rule files from sources you trust." },
+  "searchPreviewRules": { "message": "Search rules" },
+  "previewRuleCount": { "message": "$1 / $2 rules", "placeholders": { "visible": { "content": "$1" }, "total": { "content": "$2" } } },
+  "previewRuleSort": { "message": "Rule sorting" },
+  "sortRulesNameAsc": { "message": "Name ascending" },
+  "sortRulesNameDesc": { "message": "Name descending" },
+  "sortRulesTimeAsc": { "message": "Modified oldest first" },
+  "sortRulesTimeDesc": { "message": "Modified newest first" },
+  "addPreviewRule": { "message": "+ New rule" },
+  "importPreviewRules": { "message": "Import rules" },
+  "importPreviewRulesFile": { "message": "Choose a JSON file" },
+  "importMode": { "message": "Import mode" },
+  "replaceAllRules": { "message": "Replace all rules" },
+  "mergeRules": { "message": "Merge and overwrite matching names" },
+  "pastePreviewRulesJson": { "message": "Or paste rule JSON here" },
+  "importFromText": { "message": "Import from text" },
+  "exportPreviewRules": { "message": "Export current rules" },
+  "savePreviewRules": { "message": "Save preview rules" },
+  "resetPreviewRules": { "message": "Restore built-in rules" },
+  "previewRuleEnabled": { "message": "Enable rule" },
+  "removePreviewRule": { "message": "Delete rule" },
+  "previewRuleName": { "message": "Rule name" },
+  "unnamedPreviewRule": { "message": "Unnamed rule" },
+  "newPreviewRule": { "message": "New rule $1", "placeholders": { "number": { "content": "$1" } } },
+  "previewRuleUseImage": { "message": "Match using image URL" },
+  "previewRuleLinkCaseInsensitive": { "message": "Link match ignores case" },
+  "previewRuleImageCaseInsensitive": { "message": "Image match ignores case" },
+  "previewRuleLinkDecode": { "message": "Decode link twice" },
+  "previewRuleImageDecode": { "message": "Decode image twice" },
+  "previewRuleLinkLoop": { "message": "Match link result again" },
+  "previewRuleImageLoop": { "message": "Match image result again" },
+  "previewRuleLink": { "message": "Link pattern (link)" },
+  "previewRuleUrl": { "message": "Request URL transform (url)" },
+  "previewRuleResponse": { "message": "Response parser (res)" },
+  "previewRuleImage": { "message": "Image pattern (img)" },
+  "previewRuleTo": { "message": "URL replacement (to)" },
+  "previewRuleNote": { "message": "Notes (note)" },
+  "noPreviewRules": { "message": "No matching preview rules" },
+  "previewRuleNameRequired": { "message": "Rule names cannot be empty" },
+  "previewRuleNameDuplicate": { "message": "Duplicate rule name: $1", "placeholders": { "name": { "content": "$1" } } },
+  "invalidPreviewRules": { "message": "The preview-rule JSON format is invalid" },
+  "previewRulesImported": { "message": "Preview rules imported; save to apply them" },
+  "previewRulesExported": { "message": "Preview rules exported" },
+  "previewRulesSaved": { "message": "Preview rules saved" },
+  "previewRulesReset": { "message": "Built-in preview rules restored" },
+  "imageRulesLoadFailed": { "message": "Could not load preview rules: $1", "placeholders": { "error": { "content": "$1" } } },
+  "previewRulesFileTooLarge": { "message": "Rule files cannot exceed 5 MB" },
+  "previewRulesReadFailed": { "message": "Could not read the rule file" },
+  "imagePreviewShortcutsTitle": { "message": "Preview shortcuts" },
+  "imagePreviewShortcutsSubtitle": { "message": "Zoom, rotate, fit, and open original images" },
+  "imageTriggerGroup": { "message": "Activation and loading" },
+  "hold": { "message": "Hold" },
+  "imageActivationKey": { "message": "Activation input" },
+  "imageActivationMode": { "message": "Activation mode" },
+  "enableAction": { "message": "to enable" },
+  "disableAction": { "message": "to disable" },
+  "rightMouseButton": { "message": "Right mouse button" },
+  "none": { "message": "No key required" },
+  "imageDelay": { "message": "Display delay (ms)" },
+  "imageDelayOnIdle": { "message": "Reset delay on pointer movement" },
+  "imageWaitHide": { "message": "Wait for hiding before next preview" },
+  "imageHoverMark": { "message": "Zoomable-target indicator" },
+  "disabled": { "message": "Off" },
+  "changeCursor": { "message": "Change cursor" },
+  "solidOutline": { "message": "Solid outline" },
+  "dashedOutline": { "message": "Dashed outline" },
+  "dottedOutline": { "message": "Dotted outline" },
+  "imagePreload": { "message": "Image preloading" },
+  "preloadNone": { "message": "No preload" },
+  "preloadMinimal": { "message": "Minimal" },
+  "preloadHover": { "message": "On hover" },
+  "preloadPage": { "message": "On page load" },
+  "imagePreferHighResolution": { "message": "Prefer high-resolution images" },
+  "imageCaptionGroup": { "message": "Caption" },
+  "imageCaptionStyle": { "message": "Caption style" },
+  "dark": { "message": "Dark" },
+  "light": { "message": "Light" },
+  "imageCaptionPosition": { "message": "Caption position" },
+  "top": { "message": "Top" },
+  "bottom": { "message": "Bottom" },
+  "imageCaptionWrap": { "message": "Wrap by default" },
+  "imageCaptionText": { "message": "Show caption text" },
+  "imageLinkAsCaption": { "message": "Use link text as caption" },
+  "imageDimensions": { "message": "Show image dimensions" },
+  "imageQualityLevel": { "message": "Show image quality" },
+  "imageFullZoomGroup": { "message": "Pinning and placement" },
+  "imageRightClickAction": { "message": "Pin with right button" },
+  "imageClosePinned": { "message": "Close pinned view" },
+  "click": { "message": "Click" },
+  "doubleClick": { "message": "Double-click" },
+  "longPress": { "message": "Long press" },
+  "imagePlacement": { "message": "Preview placement" },
+  "cursorCenter": { "message": "Pointer center" },
+  "screenCenter": { "message": "Screen center" },
+  "imageHideCursorDelay": { "message": "Hide idle cursor after (ms)" },
+  "imageHideCursorInvalid": { "message": "Idle cursor delay must be blank or a non-negative integer" },
+  "imageDisableShortcutsInInput": { "message": "Disable shortcuts while editing text" },
+  "saveImagePreviewSettings": { "message": "Save preview settings" },
+  "resetImagePreviewSettings": { "message": "Restore JSON defaults" },
+  "imageShortcutHint": { "message": "Enter one key per action or leave it blank to disable it. Manual preload uses Alt+Shift+the configured key. Esc closes, Enter pins, +/- zooms, Ctrl+C copies, and Ctrl+S downloads." },
+  "saveImagePreviewShortcuts": { "message": "Save preview shortcuts" },
+  "resetImagePreviewShortcuts": { "message": "Restore JSON shortcut defaults" },
+  "imageSettingsLoadFailed": { "message": "Could not load preview settings: $1", "placeholders": { "arg1": { "content": "$1" } } },
+  "imageSettingsSaved": { "message": "Preview settings saved" },
+  "imageSettingsReset": { "message": "Preview settings restored" },
+  "imageShortcutsSaved": { "message": "Preview shortcuts saved" },
+  "imageShortcutsReset": { "message": "Preview shortcuts restored" },
+  "imageKeyPreload": { "message": "Preload manually" },
+  "imageKeyHighResolution": { "message": "Switch standard/high-resolution image" },
+  "imageKeyFullZoom": { "message": "Enter pinned view" },
+  "imageKeyCaption": { "message": "Wrap or hide caption" },
+  "imageKeyOpen": { "message": "Open in a new tab" },
+  "imageKeyFlipHorizontal": { "message": "Flip horizontally" },
+  "imageKeyFlipVertical": { "message": "Flip vertically" },
+  "imageKeyRotateLeft": { "message": "Rotate left" },
+  "imageKeyRotateRight": { "message": "Rotate right" },
+  "imageKeyNaturalSize": { "message": "Natural size" },
+  "imageKeyAutoFit": { "message": "Auto fit" },
+  "imageKeyFitWidth": { "message": "Fit to width" },
+  "imageKeyFitHeight": { "message": "Fit to height" },
+  "duplicateShortcutKey": { "message": "Shortcut $1 is assigned more than once", "placeholders": { "arg1": { "content": "$1" } } },
+  "duplicateMediaRule": { "message": "Media rule $1 is duplicated", "placeholders": { "arg1": { "content": "$1" } } },
+  "mediaRuleValueError": { "message": "A media-rule extension or type cannot be empty" },
+  "toggleMediaCapture": {
+    "message": "Start or stop media discovery"
+  },
+  "shortcutsTitle": {
+    "message": "Control shortcuts"
+  },
+  "shortcutsSubtitle": {
+    "message": "Playback speed, forward, and rewind"
+  },
+  "playbackSettingsTitle": {
+    "message": "Control options"
+  },
+  "playbackSettingsSubtitle": {
+    "message": "Remember speed, enforce speed, and display"
+  },
+  "mediaCaptureTitle": {
+    "message": "Media finder"
+  },
+  "mediaCaptureSubtitle": {
+    "message": "Filter and preview media from this page"
+  },
+  "captureRulesTitle": {
+    "message": "Finder rules"
+  },
+  "captureRulesSubtitle": {
+    "message": "Configure file extensions and media types to find"
+  },
+  "supportTitle": {
+    "message": "Support"
+  },
+  "back": {
+    "message": "Back"
+  },
+  "shortcutHint": {
+    "message": "Click the key field, then press a keyboard key. Leave it blank to disable the action."
+  },
+  "addShortcut": {
+    "message": "＋ Add shortcut"
+  },
+  "saveShortcuts": {
+    "message": "Save shortcuts"
+  },
+  "resetShortcuts": {
+    "message": "Restore default shortcuts"
+  },
+  "startHidden": {
+    "message": "Hide controller by default"
+  },
+  "rememberSpeed": {
+    "message": "Remember playback speed for each video"
+  },
+  "forceLastSavedSpeed": {
+    "message": "Enforce the last saved speed"
+  },
+  "forceLastSavedSpeedHint": {
+    "message": "Restore it when a website overrides the speed"
+  },
+  "applyToAudio": {
+    "message": "Apply to audio"
+  },
+  "controllerOpacity": {
+    "message": "Controller opacity"
+  },
+  "savePlaybackSettings": {
+    "message": "Save playback settings"
+  },
+  "resetPlaybackSettings": {
+    "message": "Restore playback defaults"
+  },
+  "loadingCaptureData": {
+    "message": "Loading media data…"
+  },
+  "filterMedia": {
+    "message": "Filter by name, type, or URL"
+  },
+  "sortDefault": {
+    "message": "Default"
+  },
+  "sortDefaultTitle": {
+    "message": "Currently sorted in default order"
+  },
+  "extensionRules": {
+    "message": "File extensions"
+  },
+  "extensionRulesHint": {
+    "message": "Uncheck to exclude explicitly; delete to fall back to media-type matching"
+  },
+  "enabled": {
+    "message": "Enabled"
+  },
+  "extension": {
+    "message": "Extension"
+  },
+  "minimumKb": {
+    "message": "Min KB"
+  },
+  "addExtension": {
+    "message": "＋ Add extension"
+  },
+  "typeRules": {
+    "message": "Media types"
+  },
+  "typeRulesHint": {
+    "message": "Used when no extension rule matches, for example video/*"
+  },
+  "type": {
+    "message": "Type"
+  },
+  "addType": {
+    "message": "＋ Add type"
+  },
+  "saveCaptureRules": {
+    "message": "Save finder rules"
+  },
+  "resetCaptureRules": {
+    "message": "Restore default finder rules"
+  },
+  "supportSubtitle": {
+    "message": "If it helps, you can buy me a drink."
+  },
+  "donationCodeAlt": {
+    "message": "Payment QR code"
+  },
+  "actionDisplay": {
+    "message": "Show/hide controller"
+  },
+  "actionSlower": {
+    "message": "Decrease playback speed"
+  },
+  "actionFaster": {
+    "message": "Increase playback speed"
+  },
+  "actionRewind": {
+    "message": "Rewind"
+  },
+  "actionAdvance": {
+    "message": "Forward"
+  },
+  "actionReset": {
+    "message": "Reset playback speed"
+  },
+  "actionFast": {
+    "message": "Custom playback speed"
+  },
+  "statusEnabled": {
+    "message": "Enabled"
+  },
+  "statusDisabled": {
+    "message": "Disabled"
+  },
+  "mediaCaptureStatus": {
+    "message": "Media finder $1",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "captureStopped": {
+    "message": "Media finder stopped"
+  },
+  "unknownSize": {
+    "message": "Unknown size"
+  },
+  "unknownFormat": {
+    "message": "Unknown format"
+  },
+  "downloadFile": {
+    "message": "Download this file"
+  },
+  "downloadQuality": {
+    "message": "Download this quality"
+  },
+  "noBackgroundResponse": {
+    "message": "No response from the background process"
+  },
+  "captureSummary": {
+    "message": "Found $1 media resources on this page",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "captureSummaryFiltered": {
+    "message": "Found $1 media resources; showing $2",
+    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+  },
+  "noMediaFound": {
+    "message": "No media resources found on this page"
+  },
+  "noMatchingMedia": {
+    "message": "No resources match the filter"
+  },
+  "playMediaHint": {
+    "message": "Play media on the page and results will appear here"
+  },
+  "hlsLibraryFailed": {
+    "message": "Failed to load the HLS playback library"
+  },
+  "hlsUnsupported": {
+    "message": "This browser cannot play this HLS resource"
+  },
+  "hlsPreviewFailed": {
+    "message": "This HLS resource cannot be previewed because of its codec, cross-origin restrictions, or an expired URL"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "minimumSizeError": {
+    "message": "Minimum size must be a number greater than or equal to 0"
+  },
+  "mediaTypeFormatError": {
+    "message": "Media types must use a format such as video/*"
+  },
+  "keyPlaceholder": {
+    "message": "Key"
+  },
+  "exclusive": {
+    "message": "Exclusive"
+  },
+  "invalidShortcut": {
+    "message": "Enter a valid shortcut value"
+  },
+  "saveFailed": {
+    "message": "Save failed: $1",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "playbackSaved": {
+    "message": "Playback settings saved"
+  },
+  "shortcutsSaved": {
+    "message": "Shortcuts saved"
+  },
+  "shortcutsReset": {
+    "message": "Default shortcuts restored"
+  },
+  "playbackReset": {
+    "message": "Default playback settings restored"
+  },
+  "opacityError": {
+    "message": "Opacity must be between 0 and 1"
+  },
+  "sortName": {
+    "message": "Name"
+  },
+  "sortSize": {
+    "message": "Size"
+  },
+  "sortTitle": {
+    "message": "Currently sorted by $1",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "creatingFullDownload": {
+    "message": "Creating full-video download…"
+  },
+  "separateTrackMemoryWarning": {
+    "message": "This quality has separate video and audio tracks that must be merged in memory. Estimated file size: $1; estimated peak memory: $2 (at 3×). Continue?",
+    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+  },
+  "memoryWarningTitle": {
+    "message": "Memory usage warning"
+  },
+  "continueDownload": {
+    "message": "Continue download"
+  },
+  "downloadFailed": {
+    "message": "Download failed: $1",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "readingPlaylist": {
+    "message": "Reading media playlist…"
+  },
+  "chooseDownload": {
+    "message": "Media file loaded"
+  },
+  "readingQualities": {
+    "message": "Loading media file…"
+  },
+  "qualityReadFailed": {
+    "message": "Could not read qualities: $1",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "noDownloadOptions": {
+    "message": "No download options are available"
+  },
+  "noDownloadQuality": {
+    "message": "No downloadable quality is available"
+  },
+  "creatingDownload": {
+    "message": "Creating download…"
+  },
+  "downloadWithReferer": {
+    "message": "Download started with a Referer header"
+  },
+  "downloadStarted": {
+    "message": "Download started"
+  },
+  "notSaved": {
+    "message": "Not saved"
+  },
+  "captureRulesSaved": {
+    "message": "Finder rules saved"
+  },
+  "restoreFailed": {
+    "message": "Restore failed: $1",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "captureRulesReset": {
+    "message": "Default finder rules restored"
+  },
+  "completeMp4Started": {
+    "message": "Full MP4 download started"
+  },
+  "m3u8DownloadFailed": {
+    "message": "M3U8 download failed"
+  },
+  "browserTitleOther": {
+    "message": "Web Media Assistant\nFound $1 media resources on other pages",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "browserTitleCurrent": {
+    "message": "Web Media Assistant\nFound $1 media resources on this page",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "ariaRewind": {
+    "message": "Rewind"
+  },
+  "ariaSlower": {
+    "message": "Decrease speed"
+  },
+  "ariaReset": {
+    "message": "Reset to 1.0×"
+  },
+  "ariaFaster": {
+    "message": "Increase speed"
+  },
+  "ariaAdvance": {
+    "message": "Forward"
+  },
+  "invalidM3u8": {
+    "message": "This URL is not a valid M3U8 playlist"
+  },
+  "noAudioTrack": {
+    "message": "No audio"
+  },
+  "unknownQuality": {
+    "message": "Unknown quality"
+  },
+  "defaultAudioTrack": {
+    "message": "Default audio track"
+  },
+  "separateNonAac": {
+    "message": "Separate non-AAC audio"
+  },
+  "separateAudio": {
+    "message": "Separate audio track"
+  },
+  "hasAudio": {
+    "message": "Includes audio"
+  },
+  "audioPending": {
+    "message": "Detecting audio"
+  },
+  "unsupportedSeparateAudio": {
+    "message": "The separate audio track is not AAC and is not supported by the lightweight downloader"
+  },
+  "invalidByteRange": {
+    "message": "The playlist contains an invalid byte range"
+  },
+  "vodOnly": {
+    "message": "The lightweight downloader only supports completed VOD playlists, not live streams"
+  },
+  "unsupportedEncryption": {
+    "message": "The playlist uses $1 encryption, which is not supported by the lightweight downloader",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "unknown": {
+    "message": "unknown"
+  },
+  "drmUnsupported": {
+    "message": "The playlist uses DRM or a nonstandard key format and cannot be downloaded"
+  },
+  "missingKeyUrl": {
+    "message": "The AES-128 key URL is missing"
+  },
+  "missingInitUrl": {
+    "message": "The initialization-segment URL is missing"
+  },
+  "noSegments": {
+    "message": "The playlist contains no complete downloadable media segments"
+  },
+  "tooManySegments": {
+    "message": "The playlist has more than 10,000 segments; downloading was stopped to limit memory use"
+  },
+  "httpFailed": {
+    "message": "Request failed (HTTP $1)",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "rangeFailed": {
+    "message": "The server did not return the requested media byte range"
+  },
+  "invalidIv": {
+    "message": "Invalid AES-128 IV"
+  },
+  "invalidKeyLength": {
+    "message": "The AES-128 key is not 16 bytes long"
+  },
+  "decryptFailed": {
+    "message": "Failed to decrypt an AES-128 segment"
+  },
+  "nestedPlaylist": {
+    "message": "The M3U8 master playlist is nested too deeply"
+  },
+  "noMuxedQuality": {
+    "message": "No quality with embedded audio is available"
+  },
+  "downloadAndMux": {
+    "message": "Downloading and muxing $LABEL$$COMPLETED$/$TOTAL$",
+    "placeholders": { "label": { "content": "$1" }, "completed": { "content": "$2" }, "total": { "content": "$3" } }
+  },
+  "muxLoadFailed": {
+    "message": "The MP4 transmuxing component failed to load"
+  },
+  "muxFailed": {
+    "message": "The lightweight component cannot mux this segment encoding to MP4"
+  },
+  "approximately": {
+    "message": "Approx. $1",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "audioOnly": {
+    "message": "Audio only"
+  },
+  "unknownResolution": {
+    "message": "Unknown resolution"
+  },
+  "unknownAudio": {
+    "message": "Unknown audio"
+  },
+  "mp4InfoFailed": {
+    "message": "Failed to parse MP4 information"
+  },
+  "trackInfoFailed": {
+    "message": "Could not identify track information in the first media segment"
+  },
+  "audioDetectionFailed": {
+    "message": "Audio detection failed"
+  },
+  "mp4TrackFailed": {
+    "message": "Failed to parse MP4 tracks"
+  },
+  "readTracksFailed": {
+    "message": "Could not read the MP4 tracks to merge"
+  },
+  "createTrackFailed": {
+    "message": "MP4Box could not create the $1 track",
+    "placeholders": { "arg1": { "content": "$1" } }
+  },
+  "audio": {
+    "message": "audio"
+  },
+  "video": {
+    "message": "video"
+  },
+  "noVideoTrack": {
+    "message": "The selected quality has no video track to merge"
+  },
+  "noAacTrack": {
+    "message": "The separate track contains no mergeable AAC audio"
+  },
+  "readMp4TracksFailed": {
+    "message": "Could not read audio/video tracks from the MP4"
+  },
+  "browserDownloadFailed": {
+    "message": "The browser could not create the download"
+  },
+  "downloadingLabel": {
+    "message": "Downloading and muxing $LABEL$$COMPLETED$/$TOTAL$",
+    "placeholders": { "label": { "content": "$1" }, "completed": { "content": "$2" }, "total": { "content": "$3" } }
+  },
+  "cancelDownload": {
+    "message": "Cancel"
+  },
+  "downloadAlreadyRunning": {
+    "message": "Another media download is active; wait for it to finish or cancel it first"
+  },
+  "cancellingDownload": {
+    "message": "Cancelling download…"
+  },
+  "segmentRequestTimedOut": {
+    "message": "The media segment request timed out; retry or choose another quality"
+  },
+  "segmentMuxTimedOut": {
+    "message": "Media segment muxing timed out and the task was stopped"
+  },
+  "byteRangeUnsupported": {
+    "message": "The media server ignored the byte-range request; stopped to avoid downloading the entire file repeatedly"
+  },
+  "fetchingSegmentLabel": {
+    "message": "Fetching $1segment $2/$3…",
+    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" }, "arg3": { "content": "$3" } }
+  },
+  "muxingSegmentLabel": {
+    "message": "Muxing $1segment $2/$3…",
+    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" }, "arg3": { "content": "$3" } }
+  },
+  "videoLabel": {
+    "message": "video"
+  },
+  "audioLabel": {
+    "message": "audio"
+  },
+  "selectedNoVideo": {
+    "message": "The selected quality has no video track"
+  },
+  "separateNotAac": {
+    "message": "The separate track is not recognizable AAC audio"
+  },
+  "mergingTracks": {
+    "message": "Losslessly merging video and audio tracks…"
+  },
+  "separateTrackConfirmationRequired": {
+    "message": "Separate video and audio tracks were detected; confirm the memory warning before downloading"
+  },
+  "temporaryStorageUnsupported": {
+    "message": "This Firefox version does not provide extension temporary-file storage, so low-memory downloading is unavailable"
+  },
+  "temporaryStorageInsufficient": {
+    "message": "Not enough temporary storage: approximately $1 required, $2 available",
+    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+  },
+  "temporaryFileClosed": {
+    "message": "The temporary download file is already closed"
+  },
+  "preparingDiskDownload": {
+    "message": "Creating the browser download from the temporary file…"
+  },
+  "fixingSilentTimeline": {
+    "message": "Correcting the video-only timeline (no audio)…"
+  },
+  "generatingMp4": {
+    "message": "Correcting the timeline and generating the MP4…"
+  },
+  "completeWithAudio": {
+    "message": "Full MP4 with audio download started"
+  },
+  "silentMp4Started": {
+    "message": "Video-only MP4 download started (no audio)"
+  },
+  "downloadCancelled": {
+    "message": "Download cancelled"
+  },
+  "readM3u8Failed": {
+    "message": "Could not read the M3U8 playlist"
+  },
+  "copyLink": {
+    "message": "Copy"
+  },
+  "copyLinkTitle": {
+    "message": "Copy file link"
+  },
+  "linkCopied": {
+    "message": "File link copied"
+  },
+  "copyFailed": {
+    "message": "Could not copy the file link"
+  }
+}

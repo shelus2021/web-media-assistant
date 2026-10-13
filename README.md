@@ -12,9 +12,9 @@
 
 ## 预览
 
-| 扩展首页 | 播放控制 | 图片预览 |
-| --- | --- | --- |
-| <img src="screenshots/1.png" alt="扩展首页" width="100%"> | <img src="screenshots/2.png" alt="播放控制" width="100%"> | <img src="screenshots/3.png" alt="图片预览" width="100%"> |
+| 扩展首页 | 播放控制 | 图片预览 | 媒体检索 |
+| --- | --- | --- | --- |
+| <img src="screenshots/1.png" alt="扩展首页" width="100%"> | <img src="screenshots/2.png" alt="播放控制" width="100%"> | <img src="screenshots/3.png" alt="图片预览" width="100%"> | <img src="screenshots/4.png" alt="媒体检索" width="100%"> |
 
 ## 安装
 
@@ -23,4 +23,3 @@
 ## 许可
 
 本项目原创的整合代码、设置界面和 UI 设计采用 MIT License。第三方代码仍使用各自许可，详见 [LICENSE](LICENSE) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。Imagus 相关文件不在 MIT 授权范围内。
-
