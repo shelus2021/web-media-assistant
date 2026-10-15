@@ -6,7 +6,7 @@
     const jobs = new Map();
     const jobStates = new Map();
     const requestReferers = new Map();
-    const popupPanels = new Set(["mainMenu", "playbackPanel", "shortcutsPanel", "generalPanel", "capturePanel", "imagePreviewPanel", "imagePreviewSettingsPanel", "imagePreviewShortcutsPanel", "donationPanel"]);
+    const popupPanels = new Set(["mainMenu", "playbackPanel", "shortcutsPanel", "generalPanel", "capturePanel", "imagePreviewPanel", "imagePreviewSettingsPanel", "imagePreviewShortcutsPanel"]);
     let popupPanel = "mainMenu";
     let nextJobId = 1;
     let mp4boxLoader;

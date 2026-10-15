@@ -189,9 +189,6 @@
   "captureRulesSubtitle": {
     "message": "设置需要检索的文件后缀和媒体类型"
   },
-  "supportTitle": {
-    "message": "支持一下"
-  },
   "back": {
     "message": "返回"
   },
@@ -278,12 +275,6 @@
   },
   "resetCaptureRules": {
     "message": "恢复默认检索规则"
-  },
-  "supportSubtitle": {
-    "message": "觉得好用，可以请我喝瓶水"
-  },
-  "donationCodeAlt": {
-    "message": "收款码"
   },
   "actionDisplay": {
     "message": "显示/隐藏控制器"

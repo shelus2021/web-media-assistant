@@ -189,9 +189,6 @@
   "captureRulesSubtitle": {
     "message": "Configure file extensions and media types to find"
   },
-  "supportTitle": {
-    "message": "Support"
-  },
   "back": {
     "message": "Back"
   },
@@ -278,12 +275,6 @@
   },
   "resetCaptureRules": {
     "message": "Restore default finder rules"
-  },
-  "supportSubtitle": {
-    "message": "If it helps, you can buy me a drink."
-  },
-  "donationCodeAlt": {
-    "message": "Payment QR code"
   },
   "actionDisplay": {
     "message": "Show/hide controller"

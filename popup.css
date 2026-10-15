@@ -28,7 +28,6 @@ input[type="text"], input[type="number"], textarea { caret-color: auto; }
 .subpage-header { position: sticky; top: 0; z-index: 4; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; min-height: 52px; padding: 6px 0 9px; margin-bottom: 7px; border-bottom: 1px solid #edf0f2; background: #fff; }
 .subpage-header b, .subpage-header small { display: block; }
 .subpage-header small { margin-top: 3px; overflow: hidden; color: #777; font-size: 10px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
-#donationPanel .subpage-header small { overflow: visible; line-height: 1.4; text-overflow: clip; white-space: normal; }
 .back-button { align-self: stretch; padding: 0 8px; border: 1px solid #d2d6dc; border-radius: 6px; color: #2864d7; background: #fff; font-size: 11px; }
 .back-button:hover { background: #eef3fc; }
 .card-icon { font-size: 20px; color: #2864d7; text-align: center; }
@@ -38,7 +37,6 @@ input[type="text"], input[type="number"], textarea { caret-color: auto; }
 .app-footer { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: auto; padding: 12px 0 0; color: #9aa0a6; font-size: 11px; }
 .app-footer a, .footer-link { color: #2864d7; text-decoration: none; }
 .footer-link { padding: 0; border: 0; background: transparent; font-size: inherit; }
-.footer-separator { color: #b4b9bf; }
 .app-footer a:hover, .footer-link:hover { text-decoration: underline; }
 .feature-header { grid-template-columns: auto minmax(0, 1fr) auto; }
 .feature-switch { display: flex; align-items: center; margin-right: 5px; cursor: pointer; user-select: none; }
@@ -92,7 +90,6 @@ input[type="text"], input[type="number"], textarea { caret-color: auto; }
 .capture-quality:disabled { color: #999; background: #f5f5f5; border-color: #ddd; cursor: not-allowed; }
 .capture-preview { display: block; width: 100%; max-height: 170px; margin-top: 7px; border-radius: 4px; background: #000; }
 .capture-preview-error { display: block; margin-top: 6px; color: #b3261e; font-size: 10px; line-height: 1.35; }
-.donation-code { display: block; width: min(100%, 230px); height: auto; margin: 8px auto 0; border-radius: 8px; }
 .rules-box { margin-top: 12px; border: 1px solid #dfe4ea; border-radius: 7px; background: #fff; overflow: hidden; }
 .rules-box > summary { cursor: pointer; list-style: none; }
 .rules-box > summary::-webkit-details-marker { display: none; }
