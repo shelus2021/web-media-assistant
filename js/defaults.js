@@ -10,13 +10,13 @@ var PLAYBACK_DEFAULTS = {
   mediaRetrievalEnabled: false,
   imagePreviewEnabled: true,
   keyBindings: [
-    { action: "display", key: 72, value: 0, force: false, predefined: true },
-    { action: "slower", key: 83, value: 0.1, force: false, predefined: true },
-    { action: "faster", key: 87, value: 0.1, force: false, predefined: true },
-    { action: "rewind", key: 65, value: 5, force: false, predefined: true },
-    { action: "advance", key: 68, value: 5, force: false, predefined: true },
-    { action: "reset", key: 82, value: 1, force: false, predefined: true },
-    { action: "fast", key: 86, value: 1.5, force: false, predefined: true }
+    { action: "display", key: 72, value: 0, force: true, predefined: true },
+    { action: "slower", key: 83, value: 0.1, force: true, predefined: true },
+    { action: "faster", key: 87, value: 0.1, force: true, predefined: true },
+    { action: "rewind", key: 65, value: 5, force: true, predefined: true },
+    { action: "advance", key: 68, value: 5, force: true, predefined: true },
+    { action: "reset", key: 82, value: 1, force: true, predefined: true },
+    { action: "fast", key: 86, value: 1.5, force: true, predefined: true }
   ]
 };
 

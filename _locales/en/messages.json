@@ -195,9 +195,6 @@
   "shortcutHint": {
     "message": "Click the key field, then press a keyboard key. Leave it blank to disable the action."
   },
-  "addShortcut": {
-    "message": "＋ Add shortcut"
-  },
   "saveShortcuts": {
     "message": "Save shortcuts"
   },

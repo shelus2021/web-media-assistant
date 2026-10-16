@@ -157,12 +157,12 @@ input[type="text"], input[type="number"], textarea { caret-color: auto; }
 .rule-row input[type="text"], .rule-row input[type="number"] { width: 100%; min-width: 0; padding: 5px 4px; border: 1px solid #c7cbd1; border-radius: 4px; font: inherit; }
 .rule-remove { padding: 0; border: 0; color: #b3261e; background: transparent; font-size: 17px; }
 .compact { margin-top: 6px; padding: 5px; }
-.shortcut-row { display: grid; grid-template-columns: 92px 65px 62px 1fr 25px; gap: 4px; align-items: center; margin: 5px 0; }
-.shortcut-row select, .shortcut-row input, .field input { min-width: 0; padding: 5px; border: 1px solid #c7cbd1; border-radius: 4px; background: #fff; font: inherit; }
+.shortcut-row { display: grid; grid-template-columns: minmax(92px, 1fr) 65px 62px auto; gap: 6px; align-items: center; margin: 5px 0; }
+.shortcut-action { color: #303134; font-size: 11px; }
+.shortcut-row input, .field input { min-width: 0; padding: 5px; border: 1px solid #c7cbd1; border-radius: 4px; background: #fff; font: inherit; }
 .shortcut-row input.key { text-align: center; }
 .shortcut-row input.value { width: 62px; }
 .shortcut-row input:disabled { background: #f1f3f4; color: #777; }
-.shortcut-row .remove { padding: 0; border: 0; background: transparent; color: #b3261e; font-size: 17px; }
 .force-label { color: #666; font-size: 10px; line-height: 1.1; }
 .outline, .primary { width: 100%; margin-top: 10px; padding: 7px; border-radius: 5px; }
 .outline { border: 1px solid #b8c2d1; background: #fff; color: #2864d7; }

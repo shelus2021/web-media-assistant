@@ -952,20 +952,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     return rows;
   }
-  function updateValueState(row) { const action = $(".action", row).value; const fixed = Object.prototype.hasOwnProperty.call(FIXED, action); $(".value", row).disabled = fixed; if (fixed) $(".value", row).value = FIXED[action]; }
+  function updateValueState(row) { const action = row.dataset.action; const fixed = Object.prototype.hasOwnProperty.call(FIXED, action); $(".value", row).disabled = fixed; if (fixed) $(".value", row).value = FIXED[action]; }
   function renderShortcuts() {
     const root = $("#shortcutRows"); const fragment = document.createDocumentFragment(); root.textContent = "";
-    settings.keyBindings.forEach((item, index) => {
-      const row = document.createElement("div"); row.className = "shortcut-row"; row.dataset.index = index;
-      const action = document.createElement("select"); action.className = "action";
-      Object.entries(ACTIONS).forEach(([value, label]) => { const option = document.createElement("option"); option.value = value; option.textContent = label; action.appendChild(option); });
+    DEFAULTS.keyBindings.forEach((defaultItem, index) => {
+      const item = settings.keyBindings.find((binding) => binding.action === defaultItem.action) || { ...defaultItem, key: null };
+      const row = document.createElement("div"); row.className = "shortcut-row"; row.dataset.index = index; row.dataset.action = defaultItem.action;
+      const action = document.createElement("span"); action.className = "shortcut-action"; action.textContent = ACTIONS[defaultItem.action];
       const keyInput = document.createElement("input"); keyInput.className = "key"; keyInput.type = "text"; keyInput.placeholder = t("keyPlaceholder");
       const value = document.createElement("input"); value.className = "value"; value.type = "number"; value.step = "0.01";
       const forceLabel = document.createElement("label"); forceLabel.className = "force-label";
       const force = document.createElement("input"); force.className = "force"; force.type = "checkbox"; forceLabel.append(force, document.createTextNode(" " + t("exclusive")));
-      const remove = document.createElement("button"); remove.className = "remove"; remove.type = "button"; remove.title = t("delete"); remove.textContent = "×";
-      row.append(action, keyInput, value, forceLabel, remove);
-      $(".action", row).value = item.action; const key = $(".key", row); key.dataset.code = Number.isInteger(item.key) && item.key > 0 ? item.key : ""; key.value = keyName(item.key);
+      row.append(action, keyInput, value, forceLabel);
+      const key = $(".key", row); key.dataset.code = Number.isInteger(item.key) && item.key > 0 ? item.key : ""; key.value = keyName(item.key);
       $(".value", row).value = item.value ?? ""; $(".force", row).checked = item.force === true || item.force === "true"; updateValueState(row); fragment.appendChild(row);
     });
     root.appendChild(fragment);
@@ -975,7 +974,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const usedKeys = new Set();
     let valid = true;
     document.querySelectorAll(".shortcut-row").forEach((row) => {
-      const action = $(".action", row).value;
+      const action = row.dataset.action;
       const key = Number($(".key", row).dataset.code);
       const normalizedKey = Number.isInteger(key) && key > 0 ? key : null;
       const input = $(".value", row);
@@ -984,7 +983,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (normalizedKey && usedKeys.has(normalizedKey)) throw new Error(t("duplicateShortcutKey", keyName(normalizedKey)));
       if (normalizedKey) usedKeys.add(normalizedKey);
       if (normalizedKey && ((!fixed && (!Number.isFinite(value) || value <= 0)) || (action === "fast" && (value < MIN_RATE || value > MAX_RATE)))) valid = false;
-      result.push({ action, key: normalizedKey, value: Number.isFinite(value) ? value : 0, force: $(".force", row).checked, predefined: false });
+      result.push({ action, key: normalizedKey, value: Number.isFinite(value) ? value : 0, force: $(".force", row).checked, predefined: true });
     });
     if (!valid) throw new Error(t("invalidShortcut"));
     return result;
@@ -1041,7 +1040,6 @@ document.addEventListener("DOMContentLoaded", () => {
       else openMainMenu();
       return;
     }
-    if (event.target.closest(".remove")) { event.target.closest(".shortcut-row").remove(); }
   });
   $("#enabled").addEventListener("change", () => {
     const enabled = $("#enabled").checked;
@@ -1367,8 +1365,6 @@ document.addEventListener("DOMContentLoaded", () => {
       setCaptureRulesStatus(chrome.runtime.lastError ? t("restoreFailed", chrome.runtime.lastError.message) : t("captureRulesReset"), Boolean(chrome.runtime.lastError));
     });
   });
-  $("#addShortcut").addEventListener("click", () => { settings.keyBindings.push({ action: "faster", key: null, value: 0.1, force: false }); renderShortcuts(); });
-  $("#shortcutRows").addEventListener("change", (event) => { const row = event.target.closest(".shortcut-row"); if (row && event.target.classList.contains("action")) updateValueState(row); });
   $("#shortcutRows").addEventListener("keydown", (event) => { if (!event.target.classList.contains("key")) return; event.preventDefault(); if (["Backspace", "Delete", "Escape"].includes(event.key)) { event.target.value = ""; event.target.dataset.code = ""; return; } const code = event.keyCode || event.which; if (code) { event.target.dataset.code = code; event.target.value = keyName(code); } });
   $("#imageShortcutRows").addEventListener("keydown", (event) => {
     if (!event.target.matches("[data-imagus-key]")) return;
@@ -1414,11 +1410,19 @@ document.addEventListener("DOMContentLoaded", () => {
   restoreHlsDownloadStates();
   const normalizeKeyBindings = (bindings) => {
     const defaults = cloneDefaults().keyBindings;
-    const normalized = Array.isArray(bindings) && bindings.length ? bindings.map((item) => ({ ...item })) : defaults;
-    if (!normalized.some((item) => item.action === "display")) {
-      normalized.unshift({ ...defaults.find((item) => item.action === "display") });
-    }
-    return normalized;
+    if (!Array.isArray(bindings) || !bindings.length) return defaults;
+    return defaults.map((defaultItem) => {
+      const stored = bindings.find((item) => item && item.action === defaultItem.action);
+      if (!stored) return { ...defaultItem, key: null };
+      const key = Number(stored.key);
+      const value = Number(stored.value);
+      return {
+        ...defaultItem,
+        key: Number.isInteger(key) && key > 0 ? key : null,
+        value: Number.isFinite(value) ? value : defaultItem.value,
+        force: stored.force === true || stored.force === "true"
+      };
+    });
   };
   const applyStored = (stored) => {
     settings = { ...cloneDefaults(), ...stored, keyBindings: normalizeKeyBindings(stored.keyBindings) };
@@ -1431,9 +1435,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!chrome.runtime.lastError && cached && cached.keyBindings) applyStored(cached);
     chrome.storage.sync.get(DEFAULTS, (stored) => {
       if (chrome.runtime.lastError) { if (!cached || !cached.keyBindings) setStatus(enabledLabel(settings.enabled)); return; }
-      const missingDisplay = !Array.isArray(stored.keyBindings) || !stored.keyBindings.some((item) => item.action === "display");
-      if (missingDisplay) {
-        stored.keyBindings = normalizeKeyBindings(stored.keyBindings);
+      const normalizedKeyBindings = normalizeKeyBindings(stored.keyBindings);
+      if (JSON.stringify(stored.keyBindings) !== JSON.stringify(normalizedKeyBindings)) {
+        stored.keyBindings = normalizedKeyBindings;
         chrome.storage.sync.set({ keyBindings: stored.keyBindings });
       }
       applyStored(stored);
