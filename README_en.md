@@ -10,6 +10,10 @@ A Firefox media toolbox with three independently controlled features:
 
 Image preview is based on Imagus 0.9.8.74. Its defaults come from `Imagus-conf.json`, and all 318 site resolver rules are retained. Video preview is not included.
 
+## Download
+
+[Install from Firefox Add-ons](https://addons.mozilla.org/zh-CN/firefox/addon/web-media-assistant/)
+
 ## Preview
 
 | Extension menu | Playback controls | Image preview | Media finder |

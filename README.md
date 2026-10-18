@@ -10,6 +10,10 @@
 
 图片预览基于 Imagus 0.9.8.74，默认设置取自 `Imagus-conf.json`，保留 318 条站点解析规则。当前版本只处理图片，不提供视频预览。
 
+## 扩展下载
+
+[从 Firefox 附加组件商店安装](https://addons.mozilla.org/zh-CN/firefox/addon/web-media-assistant/)
+
 ## 预览
 
 | 扩展首页 | 播放控制 | 图片预览 | 媒体检索 |
