@@ -12,8 +12,8 @@
     "LDRdelay": 300, "LDRbgOpacity": 100, "LDRanimate": true
   },
   "keys": {
-    "mOrig": "1", "mFitH": "2",
-    "rotL": "L", "flipH": "M", "flipV": "V",
+    "mOrig": "4", "mFitH": "5",
+    "rotL": "3", "flipH": "1", "flipV": "2",
     "hz_fullZm": "Z",
     "hz_caption": "H", "hz_open": "T"
   },
