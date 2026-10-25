@@ -66,7 +66,12 @@ function findMedia(data, retryCount = 0) {
     if (header["range"]) {
         const size = header["range"].match(reRange);
         if (size) {
-            header["size"] = parseInt(header["size"] * (size[3] / (size[2] - size[1])));
+            const responseSize = Number(header["size"]);
+            const rangeLength = Number(size[2]) - Number(size[1]) + 1;
+            const totalSize = Number(size[3]);
+            if (Number.isFinite(responseSize) && responseSize >= 0 && rangeLength > 0 && totalSize > 0) {
+                header["size"] = Math.round(responseSize * totalSize / rangeLength);
+            }
         }
     }
 

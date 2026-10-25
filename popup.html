@@ -47,7 +47,7 @@
         <div class="capture-filter-row"><input id="captureFilter" class="capture-filter" type="text" placeholder="筛选名称、类型或网址" data-i18n-placeholder="filterMedia" /><button type="button" id="captureSort" class="capture-sort" title="当前按默认顺序排列" data-i18n="sortDefault" data-i18n-title="sortDefaultTitle">默认</button></div>
         <div id="captureList" class="capture-list"></div>
         <details class="rules-box">
-          <summary class="rules-summary"><span class="rules-copy"><b data-i18n="captureRulesTitle">检索规则</b><small data-i18n="captureRulesSubtitle">设置需要检索的文件后缀和媒体类型</small></span><span class="rules-chevron" aria-hidden="true">⌄</span></summary>
+          <summary class="rules-summary" tabindex="-1"><span class="rules-copy"><b data-i18n="captureRulesTitle">检索规则</b><small data-i18n="captureRulesSubtitle">设置需要检索的文件后缀和媒体类型</small></span><button type="button" id="captureRulesToggle" class="rules-chevron" aria-expanded="false"></button></summary>
           <div class="rule-heading"><b data-i18n="extensionRules">检索后缀</b><small data-i18n="extensionRulesHint">取消勾选会明确排除；删除后将继续按类型判断</small></div>
           <div class="rule-columns"><span data-i18n="enabled">启用</span><span data-i18n="extension">后缀</span><span data-i18n="minimumKb">最小 KB</span><span></span></div><div id="extensionRules" class="rule-list"></div>
           <button type="button" class="outline compact" data-add-rule="Ext" data-i18n="addExtension">＋ 添加后缀</button>
@@ -60,22 +60,21 @@
       <section id="imagePreviewPanel" class="subpage hidden">
           <div class="subpage-header feature-header"><button type="button" class="back-button" data-back="mainMenu" data-i18n="back">返回</button><span><b data-i18n="imagePreviewTitle">图片预览</b><small data-i18n="imagePreviewSubtitle">悬停查看原图与动图</small></span><label class="feature-switch" title="启用或禁用图片预览" data-i18n-title="toggleImagePreview"><input id="imagePreviewEnabled" type="checkbox" /><span class="feature-slider"></span></label></div>
         <button type="button" class="menu-card" data-page="imagePreviewSettingsPanel"><span class="card-icon">⚙</span><span><b data-i18n="imagePreviewSettingsTitle">预览选项</b><small data-i18n="imagePreviewSettingsSubtitle">触发、加载、标题、贴图与外观</small></span></button>
-        <button type="button" class="menu-card" data-page="imagePreviewRulesPanel"><span class="card-icon">≡</span><span><b data-i18n="imagePreviewRulesTitle">预览规则</b><small data-i18n="imagePreviewRulesSubtitle">管理网站解析规则与导入导出</small></span></button>
+        <button type="button" class="menu-card" data-page="imagePreviewRulesPanel"><span class="card-icon">↗</span><span><b data-i18n="imagePreviewRulesTitle">预览规则</b><small data-i18n="imagePreviewRulesSubtitle">通过 URL 模板依次尝试更高清的地址</small></span></button>
         <button type="button" class="menu-card" data-page="imagePreviewShortcutsPanel"><span class="card-icon">⌨</span><span><b data-i18n="imagePreviewShortcutsTitle">预览快捷键</b><small data-i18n="imagePreviewShortcutsSubtitle">缩放、旋转、适配和打开原图</small></span></button>
       </section>
 
       <section id="imagePreviewSettingsPanel" class="subpage hidden">
         <div class="subpage-header"><button type="button" class="back-button" data-back="imagePreviewPanel" data-i18n="back">返回</button><span><b data-i18n="imagePreviewSettingsTitle">预览选项</b><small data-i18n="imagePreviewSettingsSubtitle">触发、加载、标题、贴图与外观</small></span></div>
         <div class="settings-group"><h3 data-i18n="imageTriggerGroup">触发与加载</h3>
-          <div class="field activation-combination"><span id="imageActivationLead" data-i18n="hold">按住</span><select id="imageActivationKey" aria-label="指定按键" data-i18n-aria-label="imageActivationKey" data-imagus-section="hz" data-imagus-key="actTrigger"><option value="m2" data-i18n="rightMouseButton">鼠标右键</option><option value="ctrl">Ctrl</option><option value="shift">Shift</option><option value="alt">Alt</option><option value="0" data-i18n="none">无需按键</option></select><select id="imageActivationMode" aria-label="启用方式" data-i18n-aria-label="imageActivationMode" data-imagus-section="hz" data-imagus-key="deactivate" data-imagus-type="number"><option value="0" data-i18n="enableAction">启用</option><option value="1" data-i18n="disableAction">禁用</option></select></div>
+          <div class="field activation-combination"><span id="imageActivationLead" data-i18n="hold">按住</span><select id="imageActivationKey" aria-label="指定按键" data-i18n-aria-label="imageActivationKey" data-imagus-section="hz" data-imagus-key="actTrigger"><option value="m2" data-i18n="rightMouseButton">鼠标右键</option><option value="ctrl">Ctrl</option><option value="shift">Shift</option><option value="alt">Alt</option></select><select id="imageActivationMode" aria-label="启用方式" data-i18n-aria-label="imageActivationMode" data-imagus-section="hz" data-imagus-key="deactivate" data-imagus-type="number"><option value="0" data-i18n="enableAction">启用</option><option value="1" data-i18n="disableAction">禁用</option></select></div>
           <label class="field activation-delay-setting hidden"><span data-i18n="imageDelay">显示延迟（毫秒）</span><input data-imagus-section="hz" data-imagus-key="delay" data-imagus-type="number" type="number" min="0" max="5000" step="50" /></label>
           <label class="setting activation-delay-setting hidden"><span data-i18n="imageDelayOnIdle">鼠标移动时重新计时</span><input data-imagus-section="hz" data-imagus-key="delayOnIdle" type="checkbox" /></label>
           <label class="setting activation-delay-setting hidden"><span data-i18n="imageWaitHide">隐藏后再开始下一次预览</span><input data-imagus-section="hz" data-imagus-key="waitHide" type="checkbox" /></label>
-          <label class="field"><span data-i18n="imageHoverMark">可预览目标提示</span><select data-imagus-section="hz" data-imagus-key="markOnHover"><option value="" data-i18n="disabled">关闭</option><option value="cr" data-i18n="changeCursor">改变光标</option><option value="solid" data-i18n="solidOutline">实线轮廓</option><option value="dashed" data-i18n="dashedOutline">虚线轮廓</option><option value="dotted" data-i18n="dottedOutline">点状轮廓</option></select></label>
+          <label class="field"><span data-i18n="imageHoverMark">可预览目标提示</span><select data-imagus-section="hz" data-imagus-key="markOnHover"><option value="" data-i18n="disabled">关闭</option><option value="cr" data-i18n="changeCursor">改变光标</option><option value="dashed" data-i18n="dashedOutline">虚线轮廓</option></select></label>
           <label class="field"><span data-i18n="imagePlacement">预览位置</span><select data-imagus-section="hz" data-imagus-key="placement" data-imagus-type="number"><option value="4" data-i18n="cursorCenter">光标中心</option><option value="2" data-i18n="screenCenter">屏幕中心</option></select></label>
           <label class="field"><span data-i18n="imageHideCursorDelay">隐藏静止光标（毫秒）</span><input data-imagus-section="hz" data-imagus-key="hideIdleCursor" data-imagus-type="number" type="number" min="0" step="1" /></label>
           <label class="field"><span data-i18n="imagePreload">图片预加载</span><select data-imagus-section="hz" data-imagus-key="preload" data-imagus-type="number"><option value="0" data-i18n="preloadNone">不预加载</option><option value="1" data-i18n="preloadMinimal">最小预加载</option><option value="2" data-i18n="preloadHover">鼠标悬停时</option><option value="3" data-i18n="preloadPage">页面载入时</option></select></label>
-          <label class="setting"><span data-i18n="imagePreferHighResolution">优先高清图片</span><input data-imagus-section="hz" data-imagus-key="hiRes" type="checkbox" /></label>
         </div>
         <div class="settings-group"><h3 data-i18n="imageFullZoomGroup">贴图与位置</h3>
           <label class="field"><span data-i18n="imageRightClickAction">右键进入贴图</span><select data-imagus-section="hz" data-imagus-key="fzOnPress" data-imagus-type="number"><option value="0" data-i18n="disabled">关闭</option><option value="1" data-i18n="click">单击</option><option value="2" data-i18n="longPress">长按</option></select></label>
@@ -84,30 +83,22 @@
         <div class="settings-group"><h3 data-i18n="imageCaptionGroup">标题</h3>
           <label class="field"><span data-i18n="imageCaptionStyle">标题样式</span><select data-imagus-section="hz" data-imagus-key="capStyle" data-imagus-type="number"><option value="0" data-i18n="dark">深色</option><option value="1" data-i18n="light">浅色</option></select></label>
           <label class="field"><span data-i18n="imageCaptionPosition">标题位置</span><select data-imagus-section="hz" data-imagus-key="capPos" data-imagus-type="number"><option value="0" data-i18n="top">顶部</option><option value="1" data-i18n="bottom">底部</option></select></label>
-          <label class="setting"><span data-i18n="imageCaptionWrap">默认换行</span><input data-imagus-section="hz" data-imagus-key="capWrapByDef" type="checkbox" /></label>
           <label class="setting"><span data-i18n="imageCaptionText">显示标题文字</span><input data-imagus-section="hz" data-imagus-key="capText" type="checkbox" /></label>
           <label class="setting"><span data-i18n="imageLinkAsCaption">链接文字作为标题</span><input data-imagus-section="hz" data-imagus-key="capLinkText" type="checkbox" /></label>
           <label class="setting"><span data-i18n="imageDimensions">显示图片尺寸</span><input data-imagus-section="hz" data-imagus-key="capWH" type="checkbox" /></label>
-          <label class="setting"><span data-i18n="imageQualityLevel">显示图片清晰度</span><input data-imagus-section="hz" data-imagus-key="capQuality" type="checkbox" /></label>
+          <label class="setting"><span data-i18n="imageRuleCandidate">显示规则候选值</span><input data-imagus-section="hz" data-imagus-key="capQuality" type="checkbox" /></label>
         </div>
-        <button type="button" id="saveImagePreviewSettings" class="primary" data-i18n="saveImagePreviewSettings">保存预览设置</button><button type="button" id="resetImagePreviewSettings" class="reset-button" data-i18n="resetImagePreviewSettings">恢复 JSON 默认设置</button>
+        <button type="button" id="saveImagePreviewSettings" class="primary" data-i18n="saveImagePreviewSettings">保存预览设置</button><button type="button" id="resetImagePreviewSettings" class="reset-button" data-i18n="resetImagePreviewSettings">恢复默认设置</button>
       </section>
 
       <section id="imagePreviewRulesPanel" class="subpage hidden">
-        <div class="subpage-header"><button type="button" class="back-button" data-back="imagePreviewPanel" data-i18n="back">返回</button><span><b data-i18n="imagePreviewRulesTitle">预览规则</b><small data-i18n="imagePreviewRulesSubtitle">管理网站解析规则与导入导出</small></span></div>
-        <p class="hint preview-rule-warning" data-i18n="imagePreviewRulesWarning">规则可以包含脚本，只导入可信来源的规则文件。</p>
-        <div class="preview-rule-toolbar"><input id="imagePreviewRuleSearch" type="text" data-i18n-placeholder="searchPreviewRules" placeholder="搜索规则" /><span id="imagePreviewRuleCount"></span><select id="imagePreviewRuleSort" aria-label="规则排序" data-i18n-aria-label="previewRuleSort"><option value="nameAsc" data-i18n="sortRulesNameAsc">名称顺序</option><option value="nameDesc" data-i18n="sortRulesNameDesc">名称倒序</option><option value="timeAsc" data-i18n="sortRulesTimeAsc">修改时间顺序</option><option value="timeDesc" data-i18n="sortRulesTimeDesc">修改时间倒序</option></select></div>
-        <div id="imagePreviewRuleList" class="preview-rule-list"></div>
-        <button type="button" id="addImagePreviewRule" class="outline" data-i18n="addPreviewRule">＋ 新建规则</button>
-        <details class="preview-rule-import"><summary data-i18n="importPreviewRules">导入规则</summary>
-          <label class="preview-rule-file"><span data-i18n="importPreviewRulesFile">选择 JSON 文件</span><input id="imagePreviewRuleFile" type="file" accept="application/json,.json" /></label>
-          <label class="field preview-rule-import-mode"><span data-i18n="importMode">导入方式</span><select id="imagePreviewRuleImportMode"><option value="replace" data-i18n="replaceAllRules">替换全部规则</option><option value="merge" data-i18n="mergeRules">合并并覆盖同名规则</option></select></label>
-          <textarea id="imagePreviewRuleImportText" rows="5" data-i18n-placeholder="pastePreviewRulesJson" placeholder="也可以在这里粘贴规则 JSON"></textarea>
-          <button type="button" id="importImagePreviewRulesText" class="outline" data-i18n="importFromText">从文本导入</button>
-        </details>
-        <button type="button" id="exportImagePreviewRules" class="outline" data-i18n="exportPreviewRules">导出当前规则</button>
+        <div class="subpage-header"><button type="button" class="back-button" data-back="imagePreviewPanel" data-i18n="back">返回</button><span><b data-i18n="imagePreviewRulesTitle">预览规则</b><small data-i18n="imagePreviewRulesSubtitle">通过 URL 模板依次尝试更高清的地址</small></span></div>
+        <p class="hint" data-i18n="imagePreviewRulesHint">模板中 * 保留任意原内容，%s 标记要替换的部分。每个 %s 都必须对应一个 [] 候选分组；贴图中可点击各分组独立切换，例如 [orig,large][jpg,webp]。</p>
+        <div class="preview-url-rule-search-row"><input id="imagePreviewRuleSearch" class="preview-url-rule-search" type="text" placeholder="搜索规则名称或 URL 模板" data-i18n-placeholder="searchPreviewRules" /><button type="button" id="clearImagePreviewRuleSearch" class="preview-url-rule-search-clear" title="清空搜索" aria-label="清空搜索" data-i18n-title="clearPreviewRuleSearch" data-i18n-aria-label="clearPreviewRuleSearch" disabled>×</button></div>
+        <div id="imagePreviewRuleList" class="preview-url-rule-list"></div>
+        <button type="button" id="addImagePreviewRule" class="outline" data-i18n="addPreviewRule">＋ 添加规则</button>
         <button type="button" id="saveImagePreviewRules" class="primary" data-i18n="savePreviewRules">保存预览规则</button>
-        <button type="button" id="resetImagePreviewRules" class="reset-button" data-i18n="resetPreviewRules">恢复内置规则</button>
+        <button type="button" id="resetImagePreviewRules" class="reset-button" data-i18n="resetPreviewRules">恢复默认规则</button>
       </section>
 
       <section id="imagePreviewShortcutsPanel" class="subpage hidden">
@@ -115,7 +106,7 @@
         <label class="setting"><span data-i18n="imageDisableShortcutsInInput">输入文字时禁用快捷键</span><input id="imageDisableShortcutsInInput" type="checkbox" /></label>
         <p class="hint" data-i18n="imageShortcutHint">每项填写一个按键；留空可禁用该动作。</p>
         <div id="imageShortcutRows" class="image-shortcut-list"></div>
-        <button type="button" id="saveImagePreviewShortcuts" class="primary" data-i18n="saveImagePreviewShortcuts">保存预览快捷键</button><button type="button" id="resetImagePreviewShortcuts" class="reset-button" data-i18n="resetImagePreviewShortcuts">恢复 JSON 默认快捷键</button>
+        <button type="button" id="saveImagePreviewShortcuts" class="primary" data-i18n="saveImagePreviewShortcuts">保存预览快捷键</button><button type="button" id="resetImagePreviewShortcuts" class="reset-button" data-i18n="resetImagePreviewShortcuts">恢复默认快捷键</button>
       </section>
 
     </main>

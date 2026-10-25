@@ -6,8 +6,10 @@
     const jobs = new Map();
     const jobStates = new Map();
     const requestReferers = new Map();
-    const popupPanels = new Set(["mainMenu", "playbackPanel", "shortcutsPanel", "generalPanel", "capturePanel", "imagePreviewPanel", "imagePreviewSettingsPanel", "imagePreviewShortcutsPanel"]);
+    const popupPanels = new Set(["mainMenu", "playbackPanel", "shortcutsPanel", "generalPanel", "capturePanel", "imagePreviewPanel", "imagePreviewSettingsPanel", "imagePreviewRulesPanel", "imagePreviewShortcutsPanel"]);
     let popupPanel = "mainMenu";
+    let popupClosedAt = 0;
+    let popupConnectionCount = 0;
     let nextJobId = 1;
     let mp4boxLoader;
 
@@ -893,7 +895,6 @@
         } finally {
             if (temporaryFile && !downloadOwnsTemporaryFile) await temporaryFile.remove();
             jobs.delete(job.id);
-            if (!jobs.size) popupPanel = "mainMenu";
         }
     }
 
@@ -907,6 +908,15 @@
         try { headers.push({ name: "Origin", value: new URL(entry.referer).origin }); } catch (_) {}
         return { requestHeaders: headers };
     }, { urls: ["<all_urls>"] }, ["blocking", "requestHeaders", chrome.webRequest.OnBeforeSendHeadersOptions.EXTRA_HEADERS].filter(Boolean));
+
+    chrome.runtime.onConnect.addListener(port => {
+        if (!port || port.name !== "wma-popup-session") return;
+        popupConnectionCount++;
+        port.onDisconnect.addListener(() => {
+            popupConnectionCount = Math.max(0, popupConnectionCount - 1);
+            if (!popupConnectionCount) popupClosedAt = Date.now();
+        });
+    });
 
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         if (!message || !message.Message) return false;
@@ -945,7 +955,9 @@
             for (const [sourceUrl, progress] of jobStates) {
                 if (!jobs.has(progress.jobId) && progress.updatedAt < cutoff) jobStates.delete(sourceUrl);
             }
-            sendResponse({ ok: true, jobs: [...jobStates.values()], panel: jobs.size ? popupPanel : "mainMenu" });
+            const restorePanel = popupClosedAt && Date.now() - popupClosedAt <= 10000 ? popupPanel : "mainMenu";
+            if (restorePanel === "mainMenu") popupPanel = "mainMenu";
+            sendResponse({ ok: true, jobs: [...jobStates.values()], panel: restorePanel });
             return false;
         }
         if (message.Message === "setHlsPopupPanel") {

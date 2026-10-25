@@ -11,6 +11,8 @@ const DEFAULTS = PLAYBACK_DEFAULTS;
 const CAPTURE_DEFAULTS = MEDIA_RETRIEVAL_DEFAULTS;
 
 document.addEventListener("DOMContentLoaded", () => {
+  const popupSessionPort = chrome.runtime.connect({ name: "wma-popup-session" });
+  popupSessionPort.onDisconnect.addListener(() => {});
   localizeDocument();
   let settings;
   let currentTabId = -1;
@@ -20,21 +22,17 @@ document.addEventListener("DOMContentLoaded", () => {
   let hlsLoader;
   let imagePreviewDefaults;
   let imagePreviewPrefs;
-  let imagePreviewRuleDefaults;
-  let imagePreviewRuleEntries = [];
-  let imagePreviewRulesLoaded = false;
-  let imagePreviewRuleSort = "nameAsc";
   let statusResetTimer;
   let currentPopupPanel = "mainMenu";
   const activeDownloadStates = new Set(["starting", "loading", "downloading", "saving", "cancelling"]);
   const hlsDownloadStates = new Map();
   const hlsQualityOptions = new Map();
   const imageShortcutDefinitions = [
-    ["hz_preload", "imageKeyPreload"], ["hz_hiRes", "imageKeyHighResolution"], ["hz_fullZm", "imageKeyFullZoom"],
+    ["hz_fullZm", "imageKeyFullZoom"],
     ["hz_caption", "imageKeyCaption"], ["hz_open", "imageKeyOpen"],
     ["flipH", "imageKeyFlipHorizontal"], ["flipV", "imageKeyFlipVertical"],
-    ["rotL", "imageKeyRotateLeft"], ["rotR", "imageKeyRotateRight"], ["mOrig", "imageKeyNaturalSize"],
-    ["mFit", "imageKeyAutoFit"], ["mFitW", "imageKeyFitWidth"], ["mFitH", "imageKeyFitHeight"]
+    ["rotL", "imageKeyRotateLeft"], ["mOrig", "imageKeyNaturalSize"],
+    ["mFitH", "imageKeyFitHeight"]
   ];
   const $ = (selector, root = document) => root.querySelector(selector);
   const cloneDefaults = () => ({ ...DEFAULTS, keyBindings: DEFAULTS.keyBindings.map((item) => ({ ...item })) });
@@ -88,6 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     return result;
   }
+  function parseImagusArrayStored(value, fallback) {
+    if (typeof value === "string") {
+      try { value = JSON.parse(value); } catch (_) { value = null; }
+    }
+    return cloneJson(Array.isArray(value) ? value : fallback);
+  }
   function loadImagePreviewPrefs() {
     const defaultsPromise = imagePreviewDefaults
       ? Promise.resolve(imagePreviewDefaults)
@@ -98,15 +102,17 @@ document.addEventListener("DOMContentLoaded", () => {
         imagePreviewDefaults = defaults;
         return defaults;
       });
-    const storedPromise = new Promise(resolve => chrome.storage.local.get(["hz", "keys"], resolve));
+    const storedPromise = new Promise(resolve => chrome.storage.local.get(["hz", "keys", "urlRules"], resolve));
     return Promise.all([defaultsPromise, storedPromise]).then(([defaults, stored]) => {
       imagePreviewPrefs = {
         hz: parseImagusStored(stored.hz, defaults.hz),
-        keys: parseImagusStored(stored.keys, defaults.keys)
+        keys: parseImagusStored(stored.keys, defaults.keys),
+        urlRules: parseImagusArrayStored(stored.urlRules, defaults.urlRules)
       };
       if (![2, 4].includes(Number(imagePreviewPrefs.hz.placement))) imagePreviewPrefs.hz.placement = 4;
       renderImagePreviewSettings();
       renderImagePreviewShortcuts();
+      renderImagePreviewRules();
     }).catch(error => setStatus(t("imageSettingsLoadFailed", error.message), true));
   }
   function renderImagePreviewSettings() {
@@ -122,10 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateActivationDelayVisibility();
   }
   function updateActivationDelayVisibility() {
-    const noKeyRequired = $("#imageActivationKey").value === "0";
-    $("#imageActivationLead").classList.toggle("hidden", noKeyRequired);
-    $("#imageActivationMode").classList.toggle("hidden", noKeyRequired);
-    const showDelay = !noKeyRequired && $("#imageActivationMode").value === "1";
+    const showDelay = $("#imageActivationMode").value === "1";
     document.querySelectorAll(".activation-delay-setting").forEach(control => control.classList.toggle("hidden", !showDelay));
   }
   function renderImagePreviewShortcuts() {
@@ -148,6 +151,140 @@ document.addEventListener("DOMContentLoaded", () => {
       fragment.appendChild(row);
     });
     root.appendChild(fragment);
+  }
+  function setPreviewUrlRuleExpanded(row, expanded) {
+    const details = $(".preview-url-rule-details", row);
+    const toggle = $(".preview-url-rule-toggle", row);
+    if (!details || !toggle) return;
+    row.classList.toggle("is-expanded", expanded);
+    details.hidden = !expanded;
+    toggle.textContent = expanded ? "▾" : "▸";
+    toggle.title = t(expanded ? "collapsePreviewRule" : "expandPreviewRule");
+    toggle.setAttribute("aria-label", toggle.title);
+    toggle.setAttribute("aria-expanded", String(expanded));
+  }
+  function setPreviewRuleNameEditing(input, editing) {
+    if (!input) return;
+    input.readOnly = !editing;
+    input.classList.toggle("is-editing", editing);
+    input.title = t(editing ? "finishPreviewRuleNameEdit" : "editPreviewRuleName");
+    if (editing) {
+      input.focus();
+    }
+  }
+  function createPreviewUrlRuleRow(rule = {}, expanded = false) {
+    const row = document.createElement("div");
+    row.className = "preview-url-rule";
+    const header = document.createElement("div");
+    header.className = "preview-url-rule-header";
+    const enabled = document.createElement("input");
+    enabled.type = "checkbox";
+    enabled.checked = rule.enabled !== false;
+    enabled.dataset.ruleField = "enabled";
+    enabled.title = t("previewRuleEnabled");
+    const name = document.createElement("input");
+    name.type = "text";
+    name.maxLength = 80;
+    name.value = typeof rule.name === "string" ? rule.name : "";
+    name.placeholder = t("previewRuleName");
+    name.dataset.ruleField = "name";
+    setPreviewRuleNameEditing(name, false);
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "preview-url-rule-toggle";
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "preview-url-rule-remove";
+    remove.textContent = "×";
+    remove.title = t("removePreviewRule");
+    header.append(enabled, name, toggle, remove);
+    row.appendChild(header);
+    const details = document.createElement("div");
+    details.className = "preview-url-rule-details";
+    const valueGroups = Array.isArray(rule.values) && rule.values.every(group => Array.isArray(group)) ? rule.values : [];
+    const displayedValues = valueGroups.map(group => `[${group.join(",")}]`).join("");
+    const fields = [
+      ["pattern", "previewRulePattern", typeof rule.pattern === "string" ? rule.pattern : "", "*://pbs.twimg.com/media/*?*name=%s*"],
+      ["values", "previewRuleValues", displayedValues, "[orig,large]"]
+    ];
+    for (const [key, labelKey, value, placeholder] of fields) {
+      const label = document.createElement("label");
+      label.className = "preview-url-rule-field";
+      const caption = document.createElement("span");
+      caption.textContent = t(labelKey);
+      const input = document.createElement("input");
+      input.type = "text";
+      input.maxLength = key === "values" ? 640 : 1000;
+      input.value = value;
+      input.placeholder = placeholder;
+      input.dataset.ruleField = key;
+      label.append(caption, input);
+      details.appendChild(label);
+    }
+    row.appendChild(details);
+    setPreviewUrlRuleExpanded(row, expanded);
+    return row;
+  }
+  function applyPreviewUrlRuleFilter() {
+    const root = $("#imagePreviewRuleList");
+    const searchValue = $("#imagePreviewRuleSearch").value;
+    const query = searchValue.trim().toLocaleLowerCase();
+    $("#clearImagePreviewRuleSearch").disabled = !searchValue;
+    const rows = [...root.querySelectorAll(".preview-url-rule")];
+    let visibleCount = 0;
+    rows.forEach(row => {
+      const name = row.querySelector('[data-rule-field="name"]').value.toLocaleLowerCase();
+      const pattern = row.querySelector('[data-rule-field="pattern"]').value.toLocaleLowerCase();
+      const visible = !query || name.includes(query) || pattern.includes(query);
+      row.hidden = !visible;
+      if (visible) visibleCount += 1;
+    });
+    const previousEmpty = $(".preview-rule-search-empty", root);
+    if (previousEmpty) previousEmpty.remove();
+    if (query && rows.length && !visibleCount) {
+      const empty = document.createElement("p");
+      empty.className = "capture-empty preview-rule-search-empty";
+      empty.textContent = t("noPreviewRuleMatches");
+      root.appendChild(empty);
+    }
+  }
+  function renderImagePreviewRules() {
+    if (!imagePreviewPrefs) return;
+    const root = $("#imagePreviewRuleList");
+    root.textContent = "";
+    const rules = Array.isArray(imagePreviewPrefs.urlRules) ? imagePreviewPrefs.urlRules : [];
+    if (!rules.length) {
+      const empty = document.createElement("p");
+      empty.className = "capture-empty";
+      empty.textContent = t("noPreviewRules");
+      root.appendChild(empty);
+      return;
+    }
+    rules.forEach(rule => root.appendChild(createPreviewUrlRuleRow(rule)));
+    applyPreviewUrlRuleFilter();
+  }
+  function readImagePreviewRules() {
+    const rules = [];
+    document.querySelectorAll("#imagePreviewRuleList .preview-url-rule").forEach(row => {
+      const value = key => row.querySelector(`[data-rule-field="${key}"]`).value.trim();
+      const name = value("name");
+      const pattern = value("pattern");
+      const placeholderCount = (pattern.match(/%s/g) || []).length;
+      const rawValues = value("values");
+      if (!name || !pattern || !rawValues) throw new Error(t("previewRuleRequired"));
+      if (!placeholderCount || placeholderCount > 6) throw new Error(t("previewRulePatternInvalid"));
+      const matches = [...rawValues.matchAll(/\[([^\]]*)\]/g)];
+      if (matches.map(match => match[0]).join("").replace(/\s+/g, "") !== rawValues.replace(/\s+/g, "") || matches.length !== placeholderCount) {
+        throw new Error(t("previewRuleGroupsInvalid"));
+      }
+      const groups = matches.map(match => [...new Set(match[1].split(/[,\n]+/).map(item => item.trim()).filter(Boolean))]);
+      const combinationCount = groups.reduce((total, group) => total * group.length, 1);
+      if (groups.some(group => !group.length || group.length > 6) || groups.flat().some(item => item.length > 100) || combinationCount > 216) {
+        throw new Error(t("previewRuleValuesInvalid"));
+      }
+      rules.push({ enabled: row.querySelector('[data-rule-field="enabled"]').checked, name, pattern, values: groups });
+    });
+    return rules;
   }
   function notifyImagePreviewContent() {
     const message = { cmd: "wmaImagePreviewState", enabled: imagePreviewIsEnabled() };
@@ -215,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("#imageShortcutRows [data-imagus-key]").forEach(input => {
       const value = input.value.trim();
       const normalized = value.length === 1 ? value.toUpperCase() : value;
-      if (normalized && input.dataset.imagusKey !== "hz_preload") {
+      if (normalized) {
         const identity = normalized.toLocaleUpperCase();
         if (usedKeys.has(identity)) throw new Error(t("duplicateShortcutKey", normalized));
         usedKeys.add(identity);
@@ -223,264 +360,6 @@ document.addEventListener("DOMContentLoaded", () => {
       next.keys[input.dataset.imagusKey] = normalized;
     });
     return next;
-  }
-  function parsePreviewRuleCollection(value) {
-    if (typeof value === "string") {
-      try { value = JSON.parse(value); } catch (_) { return null; }
-    }
-    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-    const rules = {};
-    const stringFields = new Set(["link", "url", "res", "img", "to", "note"]);
-    const bitFields = new Set(["ci", "dc", "loop"]);
-    for (const [name, rule] of Object.entries(value)) {
-      if (!name.trim() || !rule || typeof rule !== "object" || Array.isArray(rule)) return null;
-      for (const [key, fieldValue] of Object.entries(rule)) {
-        if (stringFields.has(key)) {
-          if (typeof fieldValue !== "string") return null;
-        } else if (bitFields.has(key)) {
-          if (!Number.isInteger(fieldValue) || fieldValue < 0 || fieldValue > 3) return null;
-        } else if (key === "useimg" || key === "off") {
-          if (fieldValue !== 0 && fieldValue !== 1) return null;
-        } else return null;
-      }
-      rules[name] = cloneJson(rule);
-    }
-    return rules;
-  }
-  function rulesToEntries(rules, times = {}) {
-    return Object.entries(rules).map(([name, rule]) => ({
-      name,
-      rule: cloneJson(rule),
-      modifiedAt: Number.isFinite(times[name]) && times[name] >= 0 ? times[name] : 0
-    }));
-  }
-  function loadImagePreviewRules() {
-    if (imagePreviewRulesLoaded) {
-      renderImagePreviewRules();
-      return Promise.resolve();
-    }
-    const defaultsPromise = imagePreviewRuleDefaults
-      ? Promise.resolve(imagePreviewRuleDefaults)
-      : fetch(chrome.runtime.getURL("imagus/sieve.jsn")).then(response => {
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        return response.json();
-      }).then(rules => {
-        imagePreviewRuleDefaults = rules;
-        return rules;
-      });
-    const storedPromise = new Promise(resolve => chrome.storage.local.get(["sieve", "imagePreviewRuleSort", "imagePreviewRuleTimes"], resolve));
-    return Promise.all([defaultsPromise, storedPromise]).then(([defaults, stored]) => {
-      const storedRules = parsePreviewRuleCollection(stored.sieve);
-      const allowedSorts = new Set(["nameAsc", "nameDesc", "timeAsc", "timeDesc"]);
-      imagePreviewRuleSort = allowedSorts.has(stored.imagePreviewRuleSort) ? stored.imagePreviewRuleSort : "nameAsc";
-      $("#imagePreviewRuleSort").value = imagePreviewRuleSort;
-      const times = stored.imagePreviewRuleTimes && typeof stored.imagePreviewRuleTimes === "object" && !Array.isArray(stored.imagePreviewRuleTimes)
-        ? stored.imagePreviewRuleTimes : {};
-      imagePreviewRuleEntries = rulesToEntries(storedRules || defaults, times);
-      imagePreviewRulesLoaded = true;
-      renderImagePreviewRules();
-    }).catch(error => setStatus(t("imageRulesLoadFailed", error.message), true));
-  }
-  function updatePreviewRuleCount(visible) {
-    $("#imagePreviewRuleCount").textContent = t("previewRuleCount", [visible, imagePreviewRuleEntries.length]);
-  }
-  function touchPreviewRule(entry) {
-    entry.modifiedAt = Date.now();
-  }
-  function setPreviewRuleBit(rule, key, bit, checked) {
-    const value = Number(rule[key]) || 0;
-    const next = checked ? value | bit : value & ~bit;
-    if (next) rule[key] = next;
-    else delete rule[key];
-  }
-  function createPreviewRuleCheckbox(labelText, checked, onChange) {
-    const label = document.createElement("label");
-    label.className = "preview-rule-check";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = checked;
-    input.addEventListener("change", () => onChange(input.checked));
-    const text = document.createElement("span");
-    text.textContent = labelText;
-    label.append(input, text);
-    return label;
-  }
-  function createPreviewRuleTextField(entry, field, labelKey, multiline = false) {
-    const label = document.createElement("label");
-    label.className = "preview-rule-field";
-    const caption = document.createElement("span");
-    caption.textContent = t(labelKey);
-    const input = document.createElement(multiline ? "textarea" : "input");
-    if (!multiline) input.type = "text";
-    else input.rows = 3;
-    input.value = typeof entry.rule[field] === "string" ? entry.rule[field] : "";
-    input.addEventListener("input", () => {
-      if (input.value) entry.rule[field] = input.value;
-      else delete entry.rule[field];
-      touchPreviewRule(entry);
-    });
-    label.append(caption, input);
-    return label;
-  }
-  function createPreviewRuleEditor(entry, titleNode) {
-    const editor = document.createElement("div");
-    editor.className = "preview-rule-editor hidden";
-    const nameLabel = document.createElement("label");
-    nameLabel.className = "preview-rule-field";
-    const nameCaption = document.createElement("span");
-    nameCaption.textContent = t("previewRuleName");
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.value = entry.name;
-    nameInput.addEventListener("input", () => {
-      entry.name = nameInput.value;
-      touchPreviewRule(entry);
-      titleNode.textContent = nameInput.value.trim() || t("unnamedPreviewRule");
-    });
-    nameLabel.append(nameCaption, nameInput);
-    editor.appendChild(nameLabel);
-    const flags = document.createElement("div");
-    flags.className = "preview-rule-flags";
-    flags.append(
-      createPreviewRuleCheckbox(t("previewRuleUseImage"), Boolean(entry.rule.useimg), checked => {
-        if (checked) entry.rule.useimg = 1; else delete entry.rule.useimg;
-        touchPreviewRule(entry);
-      }),
-      createPreviewRuleCheckbox(t("previewRuleLinkCaseInsensitive"), Boolean((Number(entry.rule.ci) || 0) & 1), checked => { setPreviewRuleBit(entry.rule, "ci", 1, checked); touchPreviewRule(entry); }),
-      createPreviewRuleCheckbox(t("previewRuleImageCaseInsensitive"), Boolean((Number(entry.rule.ci) || 0) & 2), checked => { setPreviewRuleBit(entry.rule, "ci", 2, checked); touchPreviewRule(entry); }),
-      createPreviewRuleCheckbox(t("previewRuleLinkDecode"), Boolean((Number(entry.rule.dc) || 0) & 1), checked => { setPreviewRuleBit(entry.rule, "dc", 1, checked); touchPreviewRule(entry); }),
-      createPreviewRuleCheckbox(t("previewRuleImageDecode"), Boolean((Number(entry.rule.dc) || 0) & 2), checked => { setPreviewRuleBit(entry.rule, "dc", 2, checked); touchPreviewRule(entry); }),
-      createPreviewRuleCheckbox(t("previewRuleLinkLoop"), Boolean((Number(entry.rule.loop) || 0) & 1), checked => { setPreviewRuleBit(entry.rule, "loop", 1, checked); touchPreviewRule(entry); }),
-      createPreviewRuleCheckbox(t("previewRuleImageLoop"), Boolean((Number(entry.rule.loop) || 0) & 2), checked => { setPreviewRuleBit(entry.rule, "loop", 2, checked); touchPreviewRule(entry); })
-    );
-    editor.appendChild(flags);
-    [
-      ["link", "previewRuleLink", false], ["url", "previewRuleUrl", true],
-      ["res", "previewRuleResponse", true], ["img", "previewRuleImage", false],
-      ["to", "previewRuleTo", true], ["note", "previewRuleNote", true]
-    ].forEach(([field, labelKey, multiline]) => editor.appendChild(createPreviewRuleTextField(entry, field, labelKey, multiline)));
-    return editor;
-  }
-  function renderImagePreviewRules() {
-    if (!imagePreviewRulesLoaded) return;
-    const root = $("#imagePreviewRuleList");
-    const query = $("#imagePreviewRuleSearch").value.trim().toLocaleLowerCase();
-    root.textContent = "";
-    const fragment = document.createDocumentFragment();
-    const displayedEntries = imagePreviewRuleEntries
-      .map((entry, index) => ({ entry, index }))
-      .filter(({ entry }) => !query || entry.name.toLocaleLowerCase().includes(query) || String(entry.rule.note || "").toLocaleLowerCase().includes(query));
-    const compareNames = (left, right) => left.entry.name.localeCompare(right.entry.name, undefined, { numeric: true, sensitivity: "base" });
-    displayedEntries.sort((left, right) => {
-      if (imagePreviewRuleSort === "nameAsc") return compareNames(left, right) || left.index - right.index;
-      if (imagePreviewRuleSort === "nameDesc") return -compareNames(left, right) || left.index - right.index;
-      if (imagePreviewRuleSort === "timeAsc") return left.entry.modifiedAt - right.entry.modifiedAt || left.index - right.index;
-      return right.entry.modifiedAt - left.entry.modifiedAt || left.index - right.index;
-    });
-    const visible = displayedEntries.length;
-    displayedEntries.forEach(({ entry, index }) => {
-      const item = document.createElement("div");
-      item.className = "preview-rule-item";
-      const header = document.createElement("div");
-      header.className = "preview-rule-item-header";
-      const enabled = document.createElement("input");
-      enabled.type = "checkbox";
-      enabled.checked = !entry.rule.off;
-      enabled.title = t("previewRuleEnabled");
-      enabled.addEventListener("change", () => {
-        if (enabled.checked) delete entry.rule.off; else entry.rule.off = 1;
-        touchPreviewRule(entry);
-        item.classList.toggle("disabled", !enabled.checked);
-      });
-      const title = document.createElement("button");
-      title.type = "button";
-      title.className = "preview-rule-name";
-      title.textContent = entry.name || t("unnamedPreviewRule");
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "preview-rule-mini preview-rule-delete";
-      remove.textContent = "×";
-      remove.title = t("removePreviewRule");
-      remove.addEventListener("click", () => {
-        imagePreviewRuleEntries.splice(index, 1);
-        renderImagePreviewRules();
-      });
-      header.append(enabled, title, remove);
-      const editor = createPreviewRuleEditor(entry, title);
-      title.addEventListener("click", () => editor.classList.toggle("hidden"));
-      item.classList.toggle("disabled", !enabled.checked);
-      item.append(header, editor);
-      fragment.appendChild(item);
-    });
-    root.appendChild(fragment);
-    if (!visible) {
-      const empty = document.createElement("p");
-      empty.className = "capture-empty";
-      empty.textContent = t("noPreviewRules");
-      root.appendChild(empty);
-    }
-    updatePreviewRuleCount(visible);
-  }
-  function previewRulesObject() {
-    const output = {};
-    for (const entry of imagePreviewRuleEntries) {
-      const name = entry.name.trim();
-      if (!name) throw new Error(t("previewRuleNameRequired"));
-      if (Object.prototype.hasOwnProperty.call(output, name)) throw new Error(t("previewRuleNameDuplicate", name));
-      output[name] = cloneJson(entry.rule);
-    }
-    return output;
-  }
-  function persistImagePreviewRules(message) {
-    let rules;
-    try { rules = previewRulesObject(); }
-    catch (error) { setStatus(error.message, true); return; }
-    const times = {};
-    imagePreviewRuleEntries.forEach(entry => { times[entry.name.trim()] = entry.modifiedAt; });
-    chrome.runtime.sendMessage({ cmd: "savePrefs", prefs: { sieve: rules } }, response => {
-      if (chrome.runtime.lastError || !response || response.ok !== true) {
-        setStatus(t("saveFailed", chrome.runtime.lastError ? chrome.runtime.lastError.message : t("unknown")), true);
-        return;
-      }
-      chrome.storage.local.set({ imagePreviewRuleTimes: times }, () => {
-        if (chrome.runtime.lastError) {
-          setStatus(t("saveFailed", chrome.runtime.lastError.message), true);
-          return;
-        }
-        setStatus(message);
-        notifyImagePreviewContent();
-      });
-    });
-  }
-  function importImagePreviewRules(value) {
-    const imported = parsePreviewRuleCollection(value);
-    if (!imported) throw new Error(t("invalidPreviewRules"));
-    const importedAt = Date.now();
-    if ($("#imagePreviewRuleImportMode").value === "replace") {
-      imagePreviewRuleEntries = rulesToEntries(imported);
-      imagePreviewRuleEntries.forEach(entry => { entry.modifiedAt = importedAt; });
-    } else {
-      const positions = new Map(imagePreviewRuleEntries.map((entry, index) => [entry.name, index]));
-      Object.entries(imported).forEach(([name, rule]) => {
-        if (positions.has(name)) imagePreviewRuleEntries[positions.get(name)] = { name, rule: cloneJson(rule), modifiedAt: importedAt };
-        else imagePreviewRuleEntries.push({ name, rule: cloneJson(rule), modifiedAt: importedAt });
-      });
-    }
-    $("#imagePreviewRuleSearch").value = "";
-    renderImagePreviewRules();
-    setStatus(t("previewRulesImported"));
-  }
-  function exportImagePreviewRules() {
-    let rules;
-    try { rules = previewRulesObject(); }
-    catch (error) { setStatus(error.message, true); return; }
-    const url = URL.createObjectURL(new Blob([JSON.stringify(rules, null, 2)], { type: "application/json" }));
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = "web-media-assistant-preview-rules.json";
-    anchor.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setStatus(t("previewRulesExported"));
   }
   function renderCapture() {
     renderCaptureToggle();
@@ -519,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const bytes = Number(estimatedSize);
     return !Number.isFinite(bytes) || bytes <= 0 || bytes > SEPARATE_TRACK_WARNING_BYTES;
   }
-  function confirmMemoryMerge(message) {
+  function showConfirmDialog(titleText, message, confirmText, confirmClass = "confirm-continue") {
     return new Promise(resolve => {
       const overlay = document.createElement("div");
       overlay.className = "confirm-overlay";
@@ -529,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dialog.setAttribute("aria-modal", "true");
       const title = document.createElement("strong");
       title.className = "confirm-title";
-      title.textContent = t("memoryWarningTitle");
+      title.textContent = titleText;
       const body = document.createElement("p");
       body.className = "confirm-message";
       body.textContent = message;
@@ -539,11 +418,11 @@ document.addEventListener("DOMContentLoaded", () => {
       cancel.type = "button";
       cancel.className = "confirm-cancel";
       cancel.textContent = t("cancelDownload");
-      const confirm = document.createElement("button");
-      confirm.type = "button";
-      confirm.className = "confirm-continue";
-      confirm.textContent = t("continueDownload");
-      actions.append(cancel, confirm);
+      const confirmButton = document.createElement("button");
+      confirmButton.type = "button";
+      confirmButton.className = confirmClass;
+      confirmButton.textContent = confirmText;
+      actions.append(cancel, confirmButton);
       dialog.append(title, body, actions);
       overlay.appendChild(dialog);
       const finish = accepted => {
@@ -558,14 +437,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       };
       cancel.addEventListener("click", () => finish(false));
-      confirm.addEventListener("click", () => finish(true));
+      confirmButton.addEventListener("click", () => finish(true));
       overlay.addEventListener("click", event => {
         if (event.target === overlay) finish(false);
       });
       document.addEventListener("keydown", handleKeydown, true);
       document.body.appendChild(overlay);
-      confirm.focus();
+      confirmButton.focus();
     });
+  }
+  function confirmMemoryMerge(message) {
+    return showConfirmDialog(t("memoryWarningTitle"), message, t("continueDownload"));
   }
   function captureFormat(item) {
     let format = String(item && item.ext || "").trim().replace(/^\./, "");
@@ -722,7 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
       refreshAllHlsDownloadPanels();
-      if (hasActiveDownload() && response.panel && response.panel !== "mainMenu") openPage(response.panel);
+      if (response.panel && response.panel !== "mainMenu") openPage(response.panel);
     });
   }
   function updateCaptureSummary(visibleCount, query = "") {
@@ -1015,8 +897,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderCaptureRules();
     }
     if (panelId === "imagePreviewPanel") renderImagePreviewToggle();
-    if (panelId === "imagePreviewSettingsPanel" || panelId === "imagePreviewShortcutsPanel") loadImagePreviewPrefs();
-    if (panelId === "imagePreviewRulesPanel") loadImagePreviewRules();
+    if (["imagePreviewSettingsPanel", "imagePreviewRulesPanel", "imagePreviewShortcutsPanel"].includes(panelId)) loadImagePreviewPrefs();
   }
   function openMainMenu() {
     document.querySelectorAll(".subpage").forEach((page) => page.classList.add("hidden"));
@@ -1026,6 +907,25 @@ document.addEventListener("DOMContentLoaded", () => {
     $(".content").scrollTop = 0;
     document.querySelectorAll("#captureList audio, #captureList video").forEach((media) => media.pause());
   }
+  const captureRulesBox = $(".rules-box");
+  const captureRulesSummary = $(".rules-summary", captureRulesBox);
+  const captureRulesToggle = $("#captureRulesToggle");
+  const updateCaptureRulesToggle = () => {
+    const expanded = captureRulesBox.open;
+    const label = t(expanded ? "collapsePreviewRule" : "expandPreviewRule");
+    captureRulesToggle.title = label;
+    captureRulesToggle.setAttribute("aria-label", label);
+    captureRulesToggle.setAttribute("aria-expanded", String(expanded));
+  };
+  captureRulesSummary.addEventListener("click", (event) => event.preventDefault());
+  captureRulesToggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    captureRulesBox.open = !captureRulesBox.open;
+    updateCaptureRulesToggle();
+  });
+  captureRulesBox.addEventListener("toggle", updateCaptureRulesToggle);
+  updateCaptureRulesToggle();
   document.addEventListener("click", (event) => {
     const entry = event.target.closest("[data-page]");
     if (entry) {
@@ -1063,7 +963,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try { persistImagePreviewPrefs(readImagePreviewSettings(), t("imageSettingsSaved")); }
     catch (error) { setStatus(error.message, true); }
   });
-  $("#imageActivationKey").addEventListener("change", updateActivationDelayVisibility);
   $("#imageActivationMode").addEventListener("change", updateActivationDelayVisibility);
   $("#resetImagePreviewSettings").addEventListener("click", () => {
     if (!imagePreviewDefaults || !imagePreviewPrefs) return;
@@ -1088,55 +987,72 @@ document.addEventListener("DOMContentLoaded", () => {
     renderImagePreviewShortcuts();
     persistImagePreviewPrefs(next, t("imageShortcutsReset"));
   });
-  $("#imagePreviewRuleSearch").addEventListener("input", renderImagePreviewRules);
-  $("#imagePreviewRuleSort").addEventListener("change", event => {
-    imagePreviewRuleSort = event.target.value;
-    chrome.storage.local.set({ imagePreviewRuleSort }, () => {
-      if (chrome.runtime.lastError) setStatus(t("saveFailed", chrome.runtime.lastError.message), true);
-    });
-    renderImagePreviewRules();
-  });
-  $("#addImagePreviewRule").addEventListener("click", () => {
-    let number = 1;
-    const names = new Set(imagePreviewRuleEntries.map(entry => entry.name));
-    let name = t("newPreviewRule", number);
-    while (names.has(name)) name = t("newPreviewRule", ++number);
-    imagePreviewRuleEntries.unshift({ name, rule: {}, modifiedAt: Date.now() });
-    $("#imagePreviewRuleSearch").value = "";
-    renderImagePreviewRules();
-    $("#imagePreviewRuleList").scrollTop = 0;
-  });
-  $("#importImagePreviewRulesText").addEventListener("click", () => {
-    try { importImagePreviewRules($("#imagePreviewRuleImportText").value.trim()); }
-    catch (error) { setStatus(error.message, true); }
-  });
-  $("#imagePreviewRuleFile").addEventListener("change", event => {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setStatus(t("previewRulesFileTooLarge"), true);
-      event.target.value = "";
+  $("#imagePreviewRuleList").addEventListener("click", async event => {
+    const toggle = event.target.closest(".preview-url-rule-toggle");
+    if (toggle) {
+      const row = toggle.closest(".preview-url-rule");
+      setPreviewUrlRuleExpanded(row, !row.classList.contains("is-expanded"));
       return;
     }
-    const reader = new FileReader();
-    reader.onerror = () => setStatus(t("previewRulesReadFailed"), true);
-    reader.onload = () => {
-      try { importImagePreviewRules(String(reader.result || "")); }
-      catch (error) { setStatus(error.message, true); }
-      event.target.value = "";
-    };
-    reader.readAsText(file);
+    const remove = event.target.closest(".preview-url-rule-remove");
+    if (!remove) return;
+    if (!await showConfirmDialog(t("removePreviewRule"), t("confirmRemovePreviewRule"), t("deletePreviewRule"), "confirm-delete")) return;
+    const root = $("#imagePreviewRuleList");
+    remove.closest(".preview-url-rule").remove();
+    if (!root.querySelector(".preview-url-rule")) {
+      root.querySelectorAll(".capture-empty").forEach(empty => empty.remove());
+      const empty = document.createElement("p");
+      empty.className = "capture-empty";
+      empty.textContent = t("noPreviewRules");
+      root.appendChild(empty);
+    } else applyPreviewUrlRuleFilter();
   });
-  $("#exportImagePreviewRules").addEventListener("click", exportImagePreviewRules);
-  $("#saveImagePreviewRules").addEventListener("click", () => persistImagePreviewRules(t("previewRulesSaved")));
-  $("#resetImagePreviewRules").addEventListener("click", () => {
-    if (!imagePreviewRuleDefaults) return;
-    imagePreviewRuleEntries = rulesToEntries(imagePreviewRuleDefaults);
-    const resetAt = Date.now();
-    imagePreviewRuleEntries.forEach(entry => { entry.modifiedAt = resetAt; });
+  $("#imagePreviewRuleList").addEventListener("dblclick", event => {
+    const name = event.target.closest('[data-rule-field="name"]');
+    if (name) setPreviewRuleNameEditing(name, true);
+  });
+  $("#imagePreviewRuleList").addEventListener("focusout", event => {
+    if (event.target.matches('[data-rule-field="name"]')) setPreviewRuleNameEditing(event.target, false);
+  });
+  $("#imagePreviewRuleList").addEventListener("keydown", event => {
+    if (!event.target.matches('[data-rule-field="name"]') || event.target.readOnly) return;
+    if (event.key === "Enter" || event.key === "Escape") {
+      event.preventDefault();
+      event.target.blur();
+    }
+  });
+  $("#imagePreviewRuleSearch").addEventListener("input", applyPreviewUrlRuleFilter);
+  $("#clearImagePreviewRuleSearch").addEventListener("click", () => {
+    const search = $("#imagePreviewRuleSearch");
+    search.value = "";
+    applyPreviewUrlRuleFilter();
+    search.focus();
+  });
+  $("#addImagePreviewRule").addEventListener("click", () => {
+    const root = $("#imagePreviewRuleList");
     $("#imagePreviewRuleSearch").value = "";
+    root.querySelectorAll(".capture-empty").forEach(empty => empty.remove());
+    const row = createPreviewUrlRuleRow({ enabled: true }, true);
+    root.appendChild(row);
+    applyPreviewUrlRuleFilter();
+    setPreviewRuleNameEditing(row.querySelector('[data-rule-field="name"]'), true);
+    root.scrollTop = root.scrollHeight;
+  });
+  $("#saveImagePreviewRules").addEventListener("click", () => {
+    if (!imagePreviewPrefs) return;
+    try {
+      const next = cloneJson(imagePreviewPrefs);
+      next.urlRules = readImagePreviewRules();
+      persistImagePreviewPrefs(next, t("previewRulesSaved"));
+    } catch (error) { setStatus(error.message, true); }
+  });
+  $("#resetImagePreviewRules").addEventListener("click", () => {
+    if (!imagePreviewDefaults || !imagePreviewPrefs) return;
+    const next = cloneJson(imagePreviewPrefs);
+    next.urlRules = cloneJson(imagePreviewDefaults.urlRules);
+    imagePreviewPrefs = next;
     renderImagePreviewRules();
-    persistImagePreviewRules(t("previewRulesReset"));
+    persistImagePreviewPrefs(next, t("previewRulesReset"));
   });
   $("#saveGeneral").addEventListener("click", () => { const opacity = Number($("#controllerOpacity").value); if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1) return setStatus(t("opacityError"), true); save({ startHidden: $("#startHidden").checked, rememberSpeed: $("#rememberSpeed").checked, forceLastSavedSpeed: $("#forceLastSavedSpeed").checked, audioBoolean: $("#audioBoolean").checked, controllerOpacity: opacity }, t("playbackSaved")); });
   $("#saveShortcuts").addEventListener("click", () => { try { save({ keyBindings: readShortcuts() }, t("shortcutsSaved")); } catch (error) { setStatus(error.message, true); } });

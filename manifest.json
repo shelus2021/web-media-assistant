@@ -1,7 +1,7 @@
 {
   "name": "__MSG_extensionName__",
   "short_name": "__MSG_extensionShortName__",
-  "version": "0.1.39",
+  "version": "0.2.0",
   "manifest_version": 2,
   "description": "__MSG_extensionDescription__",
   "homepage_url": "https://github.com/shelus2021/web-media-assistant",
@@ -48,7 +48,7 @@
       "matches": ["<all_urls>"],
       "match_about_blank": true,
       "run_at": "document_end",
-      "js": ["imagus/includes/content.js"]
+      "js": ["imagus/includes/url-rules.js", "imagus/includes/content.js"]
     }
   ],
   "web_accessible_resources": ["inject.css", "shadow.css"]

@@ -9,6 +9,4 @@
 | mux.js | mux.js | Apache-2.0 · `lib/mux.LICENSE.txt` |
 | MP4Box.js | GPAC | BSD-3-Clause · `lib/mp4box.LICENSE.txt` |
 
-Imagus-derived runtime files and `imagus/sieve.jsn` remain under their original terms. The project MIT license does not cover them.
-
-The bundled Imagus rules are community-maintained data. Some rules call third-party public APIs with shared credentials included by their upstream rules; those services may limit, change, or revoke access independently of this project.
+Imagus-derived runtime files remain under their original terms. The project MIT license does not cover them.

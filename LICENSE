@@ -8,8 +8,7 @@ parts are separately copyrightable.
 
 Third-party code and data are excluded. They remain under their original terms
 as listed in THIRD_PARTY_NOTICES.md and the license files under licenses/ and
-lib/. In particular, this license does not relicense Imagus-derived files or
-its rules.
+lib/. In particular, this license does not relicense Imagus-derived files.
 
 MIT License
 

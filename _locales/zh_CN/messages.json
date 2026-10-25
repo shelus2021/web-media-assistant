@@ -15,7 +15,7 @@
     "message": "播放控制"
   },
   "playbackControlSubtitle": {
-    "message": "快捷键、倍速与控制器设置"
+    "message": "自定义视频播放速度与前进后退"
   },
   "togglePlayback": {
     "message": "启用或禁用播放控制"
@@ -35,133 +35,249 @@
   "imagePreviewStatus": {
     "message": "图片预览$1"
   },
-  "imagePreviewSettingsTitle": { "message": "预览选项" },
-  "imagePreviewSettingsSubtitle": { "message": "触发、加载、标题、贴图与外观" },
+  "imagePreviewSettingsTitle": {
+    "message": "预览选项"
+  },
+  "imagePreviewSettingsSubtitle": {
+    "message": "触发、加载、标题、贴图与外观"
+  },
   "imagePreviewRulesTitle": { "message": "预览规则" },
-  "imagePreviewRulesSubtitle": { "message": "管理网站解析规则与导入导出" },
-  "imagePreviewRulesWarning": { "message": "规则可以包含脚本，只导入可信来源的规则文件。" },
-  "searchPreviewRules": { "message": "搜索规则" },
-  "previewRuleCount": { "message": "$1 / $2 条", "placeholders": { "visible": { "content": "$1" }, "total": { "content": "$2" } } },
-  "previewRuleSort": { "message": "规则排序" },
-  "sortRulesNameAsc": { "message": "名称顺序" },
-  "sortRulesNameDesc": { "message": "名称倒序" },
-  "sortRulesTimeAsc": { "message": "修改时间顺序" },
-  "sortRulesTimeDesc": { "message": "修改时间倒序" },
-  "addPreviewRule": { "message": "＋ 新建规则" },
-  "importPreviewRules": { "message": "导入规则" },
-  "importPreviewRulesFile": { "message": "选择 JSON 文件" },
-  "importMode": { "message": "导入方式" },
-  "replaceAllRules": { "message": "替换全部规则" },
-  "mergeRules": { "message": "合并并覆盖同名规则" },
-  "pastePreviewRulesJson": { "message": "也可以在这里粘贴规则 JSON" },
-  "importFromText": { "message": "从文本导入" },
-  "exportPreviewRules": { "message": "导出当前规则" },
+  "imagePreviewRulesSubtitle": { "message": "通过 URL 模板依次尝试更高清的地址" },
+  "imagePreviewRulesHint": { "message": "模板中 * 保留任意原内容，%s 标记要替换的部分。每个 %s 都必须对应一个 [] 候选分组；贴图中可点击各分组独立切换，例如 [orig,large][jpg,webp]。" },
+  "addPreviewRule": { "message": "＋ 添加规则" },
   "savePreviewRules": { "message": "保存预览规则" },
-  "resetPreviewRules": { "message": "恢复内置规则" },
+  "resetPreviewRules": { "message": "恢复默认规则" },
   "previewRuleEnabled": { "message": "启用规则" },
-  "removePreviewRule": { "message": "删除规则" },
   "previewRuleName": { "message": "规则名称" },
-  "unnamedPreviewRule": { "message": "未命名规则" },
-  "newPreviewRule": { "message": "新规则 $1", "placeholders": { "number": { "content": "$1" } } },
-  "previewRuleUseImage": { "message": "使用图片地址匹配" },
-  "previewRuleLinkCaseInsensitive": { "message": "链接匹配忽略大小写" },
-  "previewRuleImageCaseInsensitive": { "message": "图片匹配忽略大小写" },
-  "previewRuleLinkDecode": { "message": "链接重复解码" },
-  "previewRuleImageDecode": { "message": "图片重复解码" },
-  "previewRuleLinkLoop": { "message": "链接结果继续匹配" },
-  "previewRuleImageLoop": { "message": "图片结果继续匹配" },
-  "previewRuleLink": { "message": "链接匹配（link）" },
-  "previewRuleUrl": { "message": "请求地址转换（url）" },
-  "previewRuleResponse": { "message": "响应解析（res）" },
-  "previewRuleImage": { "message": "图片匹配（img）" },
-  "previewRuleTo": { "message": "地址替换（to）" },
-  "previewRuleNote": { "message": "备注（note）" },
-  "noPreviewRules": { "message": "没有匹配的预览规则" },
-  "previewRuleNameRequired": { "message": "规则名称不能为空" },
-  "previewRuleNameDuplicate": { "message": "规则名称重复：$1", "placeholders": { "name": { "content": "$1" } } },
-  "invalidPreviewRules": { "message": "预览规则 JSON 格式无效" },
-  "previewRulesImported": { "message": "预览规则已导入，保存后生效" },
-  "previewRulesExported": { "message": "预览规则已导出" },
+  "editPreviewRuleName": { "message": "双击编辑规则名称" },
+  "finishPreviewRuleNameEdit": { "message": "点击其它位置结束编辑" },
+  "expandPreviewRule": { "message": "展开规则" },
+  "collapsePreviewRule": { "message": "收起规则" },
+  "removePreviewRule": { "message": "删除规则" },
+  "confirmRemovePreviewRule": { "message": "确定要删除这条预览规则吗？" },
+  "deletePreviewRule": { "message": "删除" },
+  "previewRulePattern": { "message": "URL 匹配模板" },
+  "previewRuleValues": { "message": "替换候选值" },
+  "noPreviewRules": { "message": "当前没有预览规则。" },
+  "searchPreviewRules": { "message": "搜索规则名称或 URL 模板" },
+  "clearPreviewRuleSearch": { "message": "清空搜索" },
+  "noPreviewRuleMatches": { "message": "没有匹配的预览规则。" },
+  "previewRuleRequired": { "message": "规则名称、URL 模板和替换候选值均不能为空" },
+  "previewRulePatternInvalid": { "message": "URL 模板必须包含 1 至 6 个 %s 替换符" },
+  "previewRuleGroupsInvalid": { "message": "每个 %s 都必须分别使用连续的 [] 候选分组" },
+  "previewRuleValuesInvalid": { "message": "每个分组必须包含 1 至 6 个候选值，每个值不能超过 100 个字符" },
   "previewRulesSaved": { "message": "预览规则已保存" },
-  "previewRulesReset": { "message": "预览规则已恢复为内置版本" },
-  "imageRulesLoadFailed": { "message": "读取预览规则失败：$1", "placeholders": { "error": { "content": "$1" } } },
-  "previewRulesFileTooLarge": { "message": "规则文件不能超过 5 MB" },
-  "previewRulesReadFailed": { "message": "读取规则文件失败" },
-  "imagePreviewShortcutsTitle": { "message": "预览快捷键" },
-  "imagePreviewShortcutsSubtitle": { "message": "缩放、旋转、适配和打开原图" },
-  "imageTriggerGroup": { "message": "触发与加载" },
-  "hold": { "message": "按住" },
-  "imageActivationKey": { "message": "指定按键" },
-  "imageActivationMode": { "message": "启用方式" },
-  "enableAction": { "message": "启用" },
-  "disableAction": { "message": "禁用" },
-  "rightMouseButton": { "message": "鼠标右键" },
-  "none": { "message": "无需按键" },
-  "imageDelay": { "message": "显示延迟（毫秒）" },
-  "imageDelayOnIdle": { "message": "鼠标移动时重新计时" },
-  "imageWaitHide": { "message": "隐藏后再开始下一次预览" },
-  "imageHoverMark": { "message": "可预览目标提示" },
-  "disabled": { "message": "关闭" },
-  "changeCursor": { "message": "改变光标" },
-  "solidOutline": { "message": "实线轮廓" },
-  "dashedOutline": { "message": "虚线轮廓" },
-  "dottedOutline": { "message": "点状轮廓" },
-  "imagePreload": { "message": "图片预加载" },
-  "preloadNone": { "message": "不预加载" },
-  "preloadMinimal": { "message": "最小预加载" },
-  "preloadHover": { "message": "鼠标悬停时" },
-  "preloadPage": { "message": "页面载入时" },
-  "imagePreferHighResolution": { "message": "优先高清图片" },
-  "imageCaptionGroup": { "message": "标题" },
-  "imageCaptionStyle": { "message": "标题样式" },
-  "dark": { "message": "深色" },
-  "light": { "message": "浅色" },
-  "imageCaptionPosition": { "message": "标题位置" },
-  "top": { "message": "顶部" },
-  "bottom": { "message": "底部" },
-  "imageCaptionWrap": { "message": "默认换行" },
-  "imageCaptionText": { "message": "显示标题文字" },
-  "imageLinkAsCaption": { "message": "链接文字作为标题" },
-  "imageDimensions": { "message": "显示图片尺寸" },
-  "imageQualityLevel": { "message": "显示图片清晰度" },
-  "imageFullZoomGroup": { "message": "贴图与位置" },
-  "imageRightClickAction": { "message": "右键进入贴图" },
-  "imageClosePinned": { "message": "关闭贴图" },
-  "click": { "message": "单击" },
-  "doubleClick": { "message": "双击" },
-  "longPress": { "message": "长按" },
-  "imagePlacement": { "message": "预览位置" },
-  "cursorCenter": { "message": "光标中心" },
-  "screenCenter": { "message": "屏幕中心" },
-  "imageHideCursorDelay": { "message": "隐藏静止光标（毫秒）" },
-  "imageHideCursorInvalid": { "message": "隐藏静止光标只能留空或填写非负整数" },
-  "imageDisableShortcutsInInput": { "message": "输入文字时禁用快捷键" },
-  "saveImagePreviewSettings": { "message": "保存预览设置" },
-  "resetImagePreviewSettings": { "message": "恢复 JSON 默认设置" },
-  "imageShortcutHint": { "message": "每项填写一个按键，留空可禁用。手动预加载使用 Alt+Shift+设置键；另支持 Esc 关闭、Enter 进入贴图、+/- 缩放、Ctrl+C 复制及 Ctrl+S 下载。" },
-  "saveImagePreviewShortcuts": { "message": "保存预览快捷键" },
-  "resetImagePreviewShortcuts": { "message": "恢复 JSON 默认快捷键" },
-  "imageSettingsLoadFailed": { "message": "读取预览设置失败：$1", "placeholders": { "arg1": { "content": "$1" } } },
-  "imageSettingsSaved": { "message": "预览设置已保存" },
-  "imageSettingsReset": { "message": "预览设置已恢复默认" },
-  "imageShortcutsSaved": { "message": "预览快捷键已保存" },
-  "imageShortcutsReset": { "message": "预览快捷键已恢复默认" },
-  "imageKeyPreload": { "message": "手动预加载" },
-  "imageKeyHighResolution": { "message": "切换普通/高清图片" },
-  "imageKeyFullZoom": { "message": "进入贴图模式" },
-  "imageKeyCaption": { "message": "标题换行／隐藏" },
-  "imageKeyOpen": { "message": "在新标签页打开" },
-  "imageKeyFlipHorizontal": { "message": "水平翻转" },
-  "imageKeyFlipVertical": { "message": "垂直翻转" },
-  "imageKeyRotateLeft": { "message": "向左旋转" },
-  "imageKeyRotateRight": { "message": "向右旋转" },
-  "imageKeyNaturalSize": { "message": "原始尺寸" },
-  "imageKeyAutoFit": { "message": "自动适配" },
-  "imageKeyFitWidth": { "message": "适应宽度" },
-  "imageKeyFitHeight": { "message": "适应高度" },
-  "duplicateShortcutKey": { "message": "快捷键 $1 已被重复使用", "placeholders": { "arg1": { "content": "$1" } } },
-  "duplicateMediaRule": { "message": "检索规则 $1 重复", "placeholders": { "arg1": { "content": "$1" } } },
-  "mediaRuleValueError": { "message": "检索规则的后缀或类型不能为空" },
+  "previewRulesReset": { "message": "已恢复默认预览规则" },
+  "imagePreviewShortcutsTitle": {
+    "message": "预览快捷键"
+  },
+  "imagePreviewShortcutsSubtitle": {
+    "message": "缩放、旋转、贴图"
+  },
+  "imageTriggerGroup": {
+    "message": "触发与加载"
+  },
+  "hold": {
+    "message": "按住"
+  },
+  "imageActivationKey": {
+    "message": "指定按键"
+  },
+  "imageActivationMode": {
+    "message": "启用方式"
+  },
+  "enableAction": {
+    "message": "启用"
+  },
+  "disableAction": {
+    "message": "禁用"
+  },
+  "rightMouseButton": {
+    "message": "鼠标右键"
+  },
+  "imageDelay": {
+    "message": "显示延迟（毫秒）"
+  },
+  "imageDelayOnIdle": {
+    "message": "鼠标移动时重新计时"
+  },
+  "imageWaitHide": {
+    "message": "隐藏后再开始下一次预览"
+  },
+  "imageHoverMark": {
+    "message": "可预览目标提示"
+  },
+  "disabled": {
+    "message": "关闭"
+  },
+  "changeCursor": {
+    "message": "改变光标"
+  },
+  "dashedOutline": {
+    "message": "虚线轮廓"
+  },
+  "imagePreload": {
+    "message": "图片预加载"
+  },
+  "preloadNone": {
+    "message": "不预加载"
+  },
+  "preloadMinimal": {
+    "message": "最小预加载"
+  },
+  "preloadHover": {
+    "message": "鼠标悬停时"
+  },
+  "preloadPage": {
+    "message": "页面载入时"
+  },
+  "imageCaptionGroup": {
+    "message": "标题"
+  },
+  "imageCaptionStyle": {
+    "message": "标题样式"
+  },
+  "dark": {
+    "message": "深色"
+  },
+  "light": {
+    "message": "浅色"
+  },
+  "imageCaptionPosition": {
+    "message": "标题位置"
+  },
+  "top": {
+    "message": "顶部"
+  },
+  "bottom": {
+    "message": "底部"
+  },
+  "imageCaptionText": {
+    "message": "显示标题文字"
+  },
+  "imageLinkAsCaption": {
+    "message": "链接文字作为标题"
+  },
+  "imageDimensions": {
+    "message": "显示图片尺寸"
+  },
+  "imageRuleCandidate": {
+    "message": "显示规则候选值"
+  },
+  "imageFullZoomGroup": {
+    "message": "贴图与位置"
+  },
+  "imageRightClickAction": {
+    "message": "右键进入贴图"
+  },
+  "imageClosePinned": {
+    "message": "关闭贴图"
+  },
+  "click": {
+    "message": "单击"
+  },
+  "doubleClick": {
+    "message": "双击"
+  },
+  "longPress": {
+    "message": "长按"
+  },
+  "imagePlacement": {
+    "message": "预览位置"
+  },
+  "cursorCenter": {
+    "message": "光标中心"
+  },
+  "screenCenter": {
+    "message": "屏幕中心"
+  },
+  "imageHideCursorDelay": {
+    "message": "隐藏静止光标（毫秒）"
+  },
+  "imageHideCursorInvalid": {
+    "message": "隐藏静止光标只能留空或填写非负整数"
+  },
+  "imageDisableShortcutsInInput": {
+    "message": "输入文字时禁用快捷键"
+  },
+  "saveImagePreviewSettings": {
+    "message": "保存预览设置"
+  },
+  "resetImagePreviewSettings": {
+    "message": "恢复默认设置"
+  },
+  "imageShortcutHint": {
+    "message": "每项填写一个按键，留空可禁用。另支持 Esc 关闭、Enter 进入贴图、+/- 缩放、Ctrl+C 复制及 Ctrl+S 下载。"
+  },
+  "saveImagePreviewShortcuts": {
+    "message": "保存预览快捷键"
+  },
+  "resetImagePreviewShortcuts": {
+    "message": "恢复默认快捷键"
+  },
+  "imageSettingsLoadFailed": {
+    "message": "读取预览设置失败：$1",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "imageSettingsSaved": {
+    "message": "预览设置已保存"
+  },
+  "imageSettingsReset": {
+    "message": "预览设置已恢复默认"
+  },
+  "imageShortcutsSaved": {
+    "message": "预览快捷键已保存"
+  },
+  "imageShortcutsReset": {
+    "message": "预览快捷键已恢复默认"
+  },
+  "imageKeyFullZoom": {
+    "message": "进入贴图模式"
+  },
+  "imageKeyCaption": {
+    "message": "显示／隐藏标题栏"
+  },
+  "imageKeyOpen": {
+    "message": "在新标签页打开"
+  },
+  "imageKeyFlipHorizontal": {
+    "message": "水平翻转"
+  },
+  "imageKeyFlipVertical": {
+    "message": "垂直翻转"
+  },
+  "imageKeyRotateLeft": {
+    "message": "向左旋转"
+  },
+  "imageKeyNaturalSize": {
+    "message": "原始尺寸"
+  },
+  "imageKeyFitHeight": {
+    "message": "适应高度"
+  },
+  "duplicateShortcutKey": {
+    "message": "快捷键 $1 已被重复使用",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "duplicateMediaRule": {
+    "message": "检索规则 $1 重复",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "mediaRuleValueError": {
+    "message": "检索规则的后缀或类型不能为空"
+  },
   "toggleMediaCapture": {
     "message": "启用或停止媒体检索"
   },
@@ -181,7 +297,7 @@
     "message": "媒体检索"
   },
   "mediaCaptureSubtitle": {
-    "message": "筛选并预览当前页面的媒体资源"
+    "message": "筛选并列出当前页面的媒体资源"
   },
   "captureRulesTitle": {
     "message": "检索规则"
@@ -302,7 +418,11 @@
   },
   "mediaCaptureStatus": {
     "message": "媒体检索$1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "captureStopped": {
     "message": "媒体检索已停止"
@@ -324,11 +444,22 @@
   },
   "captureSummary": {
     "message": "当前页面已检索到 $1 个媒体资源",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "captureSummaryFiltered": {
     "message": "当前页面已检索到 $1 个媒体资源，显示 $2 个",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "noMediaFound": {
     "message": "当前页面暂未检索到媒体资源"
@@ -368,7 +499,11 @@
   },
   "saveFailed": {
     "message": "保存失败：$1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "playbackSaved": {
     "message": "播放设置已保存"
@@ -393,14 +528,25 @@
   },
   "sortTitle": {
     "message": "当前按$1顺序排列",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "creatingFullDownload": {
     "message": "正在创建完整视频下载任务…"
   },
   "separateTrackMemoryWarning": {
     "message": "该画质的视频与音频需要在内存中合并。本文件预计为 $1，峰值内存约为 $2（按 3 倍估算）。是否继续？",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "memoryWarningTitle": {
     "message": "内存占用提示"
@@ -410,7 +556,11 @@
   },
   "downloadFailed": {
     "message": "下载失败：$1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "readingPlaylist": {
     "message": "正在读取媒体清单…"
@@ -423,7 +573,11 @@
   },
   "qualityReadFailed": {
     "message": "无法读取画质：$1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "noDownloadOptions": {
     "message": "没有可用的下载方案"
@@ -448,7 +602,11 @@
   },
   "restoreFailed": {
     "message": "恢复失败：$1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "captureRulesReset": {
     "message": "检索规则已恢复默认"
@@ -461,11 +619,19 @@
   },
   "browserTitleOther": {
     "message": "网页媒体助手\n其他页面已检索到 $1 个媒体资源",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "browserTitleCurrent": {
     "message": "网页媒体助手\n当前页面已检索到 $1 个媒体资源",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "ariaRewind": {
     "message": "后退"
@@ -517,7 +683,11 @@
   },
   "unsupportedEncryption": {
     "message": "该清单使用 $1 加密，轻量下载不支持",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "unknown": {
     "message": "未知"
@@ -539,7 +709,11 @@
   },
   "httpFailed": {
     "message": "请求失败（HTTP $1）",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "rangeFailed": {
     "message": "服务器未正确返回指定的媒体字节范围"
@@ -561,7 +735,17 @@
   },
   "downloadAndMux": {
     "message": "正在下载并封装$LABEL$$COMPLETED$/$TOTAL$",
-    "placeholders": { "label": { "content": "$1" }, "completed": { "content": "$2" }, "total": { "content": "$3" } }
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "completed": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
   },
   "muxLoadFailed": {
     "message": "MP4 转封装组件未能加载"
@@ -571,7 +755,11 @@
   },
   "approximately": {
     "message": "约 $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "audioOnly": {
     "message": "仅音频"
@@ -599,7 +787,11 @@
   },
   "createTrackFailed": {
     "message": "MP4Box 无法创建$1轨道",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "audio": {
     "message": "音频"
@@ -621,7 +813,17 @@
   },
   "downloadingLabel": {
     "message": "正在下载并封装$LABEL$$COMPLETED$/$TOTAL$",
-    "placeholders": { "label": { "content": "$1" }, "completed": { "content": "$2" }, "total": { "content": "$3" } }
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "completed": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
   },
   "cancelDownload": {
     "message": "取消"
@@ -643,11 +845,31 @@
   },
   "fetchingSegmentLabel": {
     "message": "正在获取$1分片 $2/$3…",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" }, "arg3": { "content": "$3" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
   },
   "muxingSegmentLabel": {
     "message": "正在封装$1分片 $2/$3…",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" }, "arg3": { "content": "$3" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
   },
   "videoLabel": {
     "message": "视频"
@@ -672,7 +894,14 @@
   },
   "temporaryStorageInsufficient": {
     "message": "临时存储空间不足：预计需要 $1，当前可用 $2",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "temporaryFileClosed": {
     "message": "临时下载文件已关闭"

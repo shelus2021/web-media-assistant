@@ -41,8 +41,9 @@ function InitOptions() {
     // 读取sync配置数据 交给全局变量G
     chrome.storage.sync.get(G.OptionLists, function (items) {
         // Ext的Array转为Map类型
-        items.Ext = new Map(items.Ext.map(item => [item.ext, item]));
-        G = { ...items, ...G };
+        items.Ext = normalizeExtensionOptions(items.Ext);
+        items.Type = normalizeTypeOptions(items.Type);
+        G = { ...G, ...items };
         G.initSyncComplete = true;
     });
 }
@@ -66,12 +67,31 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     if (namespace != "sync") { return; }
     for (let [key, { newValue }] of Object.entries(changes)) {
         if (key == "Ext") {
-            G.Ext = new Map(newValue.map(item => [item.ext, item]));
+            G.Ext = normalizeExtensionOptions(newValue);
             continue;
         }
-        G[key] = newValue;
+        if (key == "Type") {
+            G.Type = normalizeTypeOptions(newValue);
+            continue;
+        }
+        G[key] = newValue === undefined && Object.prototype.hasOwnProperty.call(G.OptionLists, key)
+            ? G.OptionLists[key]
+            : newValue;
     }
 });
+
+function normalizeExtensionOptions(value) {
+    const source = Array.isArray(value) ? value : G.OptionLists.Ext;
+    const valid = source.filter(item => item && typeof item.ext == "string" && item.ext.trim());
+    const fallback = valid.length ? valid : G.OptionLists.Ext;
+    return new Map(fallback.map(item => [item.ext.trim().toLowerCase(), item]));
+}
+
+function normalizeTypeOptions(value) {
+    const source = Array.isArray(value) ? value : G.OptionLists.Type;
+    const valid = source.filter(item => item && typeof item.type == "string" && item.type.includes("/"));
+    return valid.length ? valid : G.OptionLists.Type.map(item => ({ ...item }));
+}
 // 扩展升级，清空本地储存
 chrome.runtime.onInstalled.addListener(function (details) {
     if (details.reason == "update") {

@@ -691,16 +691,6 @@ function initializeNow(document) {
     video.vsc = new tc.videoController(video);
   });
 
-  var frameTags = document.getElementsByTagName("iframe");
-  Array.prototype.forEach.call(frameTags, function (frame) {
-    // Ignore frames we don't have permission to access (different origin).
-    try {
-      var childDocument = frame.contentDocument;
-    } catch (e) {
-      return;
-    }
-    initializeWhenReady(childDocument);
-  });
   log("End initializeNow", 5);
 }
 

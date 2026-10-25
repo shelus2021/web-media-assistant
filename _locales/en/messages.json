@@ -15,7 +15,7 @@
     "message": "Playback controls"
   },
   "playbackControlSubtitle": {
-    "message": "Shortcuts, speed, and controller settings"
+    "message": "Customize video playback speed and seeking"
   },
   "togglePlayback": {
     "message": "Enable or disable playback controls"
@@ -35,133 +35,249 @@
   "imagePreviewStatus": {
     "message": "Image preview $1"
   },
-  "imagePreviewSettingsTitle": { "message": "Preview options" },
-  "imagePreviewSettingsSubtitle": { "message": "Activation, loading, captions, pinning, and appearance" },
+  "imagePreviewSettingsTitle": {
+    "message": "Preview options"
+  },
+  "imagePreviewSettingsSubtitle": {
+    "message": "Activation, loading, captions, pinning, and appearance"
+  },
   "imagePreviewRulesTitle": { "message": "Preview rules" },
-  "imagePreviewRulesSubtitle": { "message": "Manage site resolvers and import or export rules" },
-  "imagePreviewRulesWarning": { "message": "Rules can contain scripts. Only import rule files from sources you trust." },
-  "searchPreviewRules": { "message": "Search rules" },
-  "previewRuleCount": { "message": "$1 / $2 rules", "placeholders": { "visible": { "content": "$1" }, "total": { "content": "$2" } } },
-  "previewRuleSort": { "message": "Rule sorting" },
-  "sortRulesNameAsc": { "message": "Name ascending" },
-  "sortRulesNameDesc": { "message": "Name descending" },
-  "sortRulesTimeAsc": { "message": "Modified oldest first" },
-  "sortRulesTimeDesc": { "message": "Modified newest first" },
-  "addPreviewRule": { "message": "+ New rule" },
-  "importPreviewRules": { "message": "Import rules" },
-  "importPreviewRulesFile": { "message": "Choose a JSON file" },
-  "importMode": { "message": "Import mode" },
-  "replaceAllRules": { "message": "Replace all rules" },
-  "mergeRules": { "message": "Merge and overwrite matching names" },
-  "pastePreviewRulesJson": { "message": "Or paste rule JSON here" },
-  "importFromText": { "message": "Import from text" },
-  "exportPreviewRules": { "message": "Export current rules" },
+  "imagePreviewRulesSubtitle": { "message": "Use URL templates to try higher-resolution addresses in order" },
+  "imagePreviewRulesHint": { "message": "In a template, * preserves arbitrary source text and %s marks a replaced part. Every %s must have one [] candidate group; each group can be cycled independently in pinned view, such as [orig,large][jpg,webp]." },
+  "addPreviewRule": { "message": "+ Add rule" },
   "savePreviewRules": { "message": "Save preview rules" },
-  "resetPreviewRules": { "message": "Restore built-in rules" },
+  "resetPreviewRules": { "message": "Restore default rules" },
   "previewRuleEnabled": { "message": "Enable rule" },
-  "removePreviewRule": { "message": "Delete rule" },
   "previewRuleName": { "message": "Rule name" },
-  "unnamedPreviewRule": { "message": "Unnamed rule" },
-  "newPreviewRule": { "message": "New rule $1", "placeholders": { "number": { "content": "$1" } } },
-  "previewRuleUseImage": { "message": "Match using image URL" },
-  "previewRuleLinkCaseInsensitive": { "message": "Link match ignores case" },
-  "previewRuleImageCaseInsensitive": { "message": "Image match ignores case" },
-  "previewRuleLinkDecode": { "message": "Decode link twice" },
-  "previewRuleImageDecode": { "message": "Decode image twice" },
-  "previewRuleLinkLoop": { "message": "Match link result again" },
-  "previewRuleImageLoop": { "message": "Match image result again" },
-  "previewRuleLink": { "message": "Link pattern (link)" },
-  "previewRuleUrl": { "message": "Request URL transform (url)" },
-  "previewRuleResponse": { "message": "Response parser (res)" },
-  "previewRuleImage": { "message": "Image pattern (img)" },
-  "previewRuleTo": { "message": "URL replacement (to)" },
-  "previewRuleNote": { "message": "Notes (note)" },
-  "noPreviewRules": { "message": "No matching preview rules" },
-  "previewRuleNameRequired": { "message": "Rule names cannot be empty" },
-  "previewRuleNameDuplicate": { "message": "Duplicate rule name: $1", "placeholders": { "name": { "content": "$1" } } },
-  "invalidPreviewRules": { "message": "The preview-rule JSON format is invalid" },
-  "previewRulesImported": { "message": "Preview rules imported; save to apply them" },
-  "previewRulesExported": { "message": "Preview rules exported" },
+  "editPreviewRuleName": { "message": "Double-click to edit the rule name" },
+  "finishPreviewRuleNameEdit": { "message": "Click elsewhere to finish editing" },
+  "expandPreviewRule": { "message": "Expand rule" },
+  "collapsePreviewRule": { "message": "Collapse rule" },
+  "removePreviewRule": { "message": "Delete rule" },
+  "confirmRemovePreviewRule": { "message": "Delete this preview rule?" },
+  "deletePreviewRule": { "message": "Delete" },
+  "previewRulePattern": { "message": "URL match template" },
+  "previewRuleValues": { "message": "Replacement candidates" },
+  "noPreviewRules": { "message": "There are no preview rules." },
+  "searchPreviewRules": { "message": "Search rule names or URL templates" },
+  "clearPreviewRuleSearch": { "message": "Clear search" },
+  "noPreviewRuleMatches": { "message": "No preview rules match your search." },
+  "previewRuleRequired": { "message": "Rule name, URL template, and replacement candidates are required" },
+  "previewRulePatternInvalid": { "message": "The URL template must contain 1 to 6 %s replacement markers" },
+  "previewRuleGroupsInvalid": { "message": "Every %s marker requires one adjacent [] candidate group" },
+  "previewRuleValuesInvalid": { "message": "Each group must contain 1 to 6 candidates, with no value longer than 100 characters" },
   "previewRulesSaved": { "message": "Preview rules saved" },
-  "previewRulesReset": { "message": "Built-in preview rules restored" },
-  "imageRulesLoadFailed": { "message": "Could not load preview rules: $1", "placeholders": { "error": { "content": "$1" } } },
-  "previewRulesFileTooLarge": { "message": "Rule files cannot exceed 5 MB" },
-  "previewRulesReadFailed": { "message": "Could not read the rule file" },
-  "imagePreviewShortcutsTitle": { "message": "Preview shortcuts" },
-  "imagePreviewShortcutsSubtitle": { "message": "Zoom, rotate, fit, and open original images" },
-  "imageTriggerGroup": { "message": "Activation and loading" },
-  "hold": { "message": "Hold" },
-  "imageActivationKey": { "message": "Activation input" },
-  "imageActivationMode": { "message": "Activation mode" },
-  "enableAction": { "message": "to enable" },
-  "disableAction": { "message": "to disable" },
-  "rightMouseButton": { "message": "Right mouse button" },
-  "none": { "message": "No key required" },
-  "imageDelay": { "message": "Display delay (ms)" },
-  "imageDelayOnIdle": { "message": "Reset delay on pointer movement" },
-  "imageWaitHide": { "message": "Wait for hiding before next preview" },
-  "imageHoverMark": { "message": "Zoomable-target indicator" },
-  "disabled": { "message": "Off" },
-  "changeCursor": { "message": "Change cursor" },
-  "solidOutline": { "message": "Solid outline" },
-  "dashedOutline": { "message": "Dashed outline" },
-  "dottedOutline": { "message": "Dotted outline" },
-  "imagePreload": { "message": "Image preloading" },
-  "preloadNone": { "message": "No preload" },
-  "preloadMinimal": { "message": "Minimal" },
-  "preloadHover": { "message": "On hover" },
-  "preloadPage": { "message": "On page load" },
-  "imagePreferHighResolution": { "message": "Prefer high-resolution images" },
-  "imageCaptionGroup": { "message": "Caption" },
-  "imageCaptionStyle": { "message": "Caption style" },
-  "dark": { "message": "Dark" },
-  "light": { "message": "Light" },
-  "imageCaptionPosition": { "message": "Caption position" },
-  "top": { "message": "Top" },
-  "bottom": { "message": "Bottom" },
-  "imageCaptionWrap": { "message": "Wrap by default" },
-  "imageCaptionText": { "message": "Show caption text" },
-  "imageLinkAsCaption": { "message": "Use link text as caption" },
-  "imageDimensions": { "message": "Show image dimensions" },
-  "imageQualityLevel": { "message": "Show image quality" },
-  "imageFullZoomGroup": { "message": "Pinning and placement" },
-  "imageRightClickAction": { "message": "Pin with right button" },
-  "imageClosePinned": { "message": "Close pinned view" },
-  "click": { "message": "Click" },
-  "doubleClick": { "message": "Double-click" },
-  "longPress": { "message": "Long press" },
-  "imagePlacement": { "message": "Preview placement" },
-  "cursorCenter": { "message": "Pointer center" },
-  "screenCenter": { "message": "Screen center" },
-  "imageHideCursorDelay": { "message": "Hide idle cursor after (ms)" },
-  "imageHideCursorInvalid": { "message": "Idle cursor delay must be blank or a non-negative integer" },
-  "imageDisableShortcutsInInput": { "message": "Disable shortcuts while editing text" },
-  "saveImagePreviewSettings": { "message": "Save preview settings" },
-  "resetImagePreviewSettings": { "message": "Restore JSON defaults" },
-  "imageShortcutHint": { "message": "Enter one key per action or leave it blank to disable it. Manual preload uses Alt+Shift+the configured key. Esc closes, Enter pins, +/- zooms, Ctrl+C copies, and Ctrl+S downloads." },
-  "saveImagePreviewShortcuts": { "message": "Save preview shortcuts" },
-  "resetImagePreviewShortcuts": { "message": "Restore JSON shortcut defaults" },
-  "imageSettingsLoadFailed": { "message": "Could not load preview settings: $1", "placeholders": { "arg1": { "content": "$1" } } },
-  "imageSettingsSaved": { "message": "Preview settings saved" },
-  "imageSettingsReset": { "message": "Preview settings restored" },
-  "imageShortcutsSaved": { "message": "Preview shortcuts saved" },
-  "imageShortcutsReset": { "message": "Preview shortcuts restored" },
-  "imageKeyPreload": { "message": "Preload manually" },
-  "imageKeyHighResolution": { "message": "Switch standard/high-resolution image" },
-  "imageKeyFullZoom": { "message": "Enter pinned view" },
-  "imageKeyCaption": { "message": "Wrap or hide caption" },
-  "imageKeyOpen": { "message": "Open in a new tab" },
-  "imageKeyFlipHorizontal": { "message": "Flip horizontally" },
-  "imageKeyFlipVertical": { "message": "Flip vertically" },
-  "imageKeyRotateLeft": { "message": "Rotate left" },
-  "imageKeyRotateRight": { "message": "Rotate right" },
-  "imageKeyNaturalSize": { "message": "Natural size" },
-  "imageKeyAutoFit": { "message": "Auto fit" },
-  "imageKeyFitWidth": { "message": "Fit to width" },
-  "imageKeyFitHeight": { "message": "Fit to height" },
-  "duplicateShortcutKey": { "message": "Shortcut $1 is assigned more than once", "placeholders": { "arg1": { "content": "$1" } } },
-  "duplicateMediaRule": { "message": "Media rule $1 is duplicated", "placeholders": { "arg1": { "content": "$1" } } },
-  "mediaRuleValueError": { "message": "A media-rule extension or type cannot be empty" },
+  "previewRulesReset": { "message": "Default preview rules restored" },
+  "imagePreviewShortcutsTitle": {
+    "message": "Preview shortcuts"
+  },
+  "imagePreviewShortcutsSubtitle": {
+    "message": "Zoom, rotate, and pin images"
+  },
+  "imageTriggerGroup": {
+    "message": "Activation and loading"
+  },
+  "hold": {
+    "message": "Hold"
+  },
+  "imageActivationKey": {
+    "message": "Activation input"
+  },
+  "imageActivationMode": {
+    "message": "Activation mode"
+  },
+  "enableAction": {
+    "message": "to enable"
+  },
+  "disableAction": {
+    "message": "to disable"
+  },
+  "rightMouseButton": {
+    "message": "Right mouse button"
+  },
+  "imageDelay": {
+    "message": "Display delay (ms)"
+  },
+  "imageDelayOnIdle": {
+    "message": "Reset delay on pointer movement"
+  },
+  "imageWaitHide": {
+    "message": "Wait for hiding before next preview"
+  },
+  "imageHoverMark": {
+    "message": "Zoomable-target indicator"
+  },
+  "disabled": {
+    "message": "Off"
+  },
+  "changeCursor": {
+    "message": "Change cursor"
+  },
+  "dashedOutline": {
+    "message": "Dashed outline"
+  },
+  "imagePreload": {
+    "message": "Image preloading"
+  },
+  "preloadNone": {
+    "message": "No preload"
+  },
+  "preloadMinimal": {
+    "message": "Minimal"
+  },
+  "preloadHover": {
+    "message": "On hover"
+  },
+  "preloadPage": {
+    "message": "On page load"
+  },
+  "imageCaptionGroup": {
+    "message": "Caption"
+  },
+  "imageCaptionStyle": {
+    "message": "Caption style"
+  },
+  "dark": {
+    "message": "Dark"
+  },
+  "light": {
+    "message": "Light"
+  },
+  "imageCaptionPosition": {
+    "message": "Caption position"
+  },
+  "top": {
+    "message": "Top"
+  },
+  "bottom": {
+    "message": "Bottom"
+  },
+  "imageCaptionText": {
+    "message": "Show caption text"
+  },
+  "imageLinkAsCaption": {
+    "message": "Use link text as caption"
+  },
+  "imageDimensions": {
+    "message": "Show image dimensions"
+  },
+  "imageRuleCandidate": {
+    "message": "Show rule candidate"
+  },
+  "imageFullZoomGroup": {
+    "message": "Pinning and placement"
+  },
+  "imageRightClickAction": {
+    "message": "Pin with right button"
+  },
+  "imageClosePinned": {
+    "message": "Close pinned view"
+  },
+  "click": {
+    "message": "Click"
+  },
+  "doubleClick": {
+    "message": "Double-click"
+  },
+  "longPress": {
+    "message": "Long press"
+  },
+  "imagePlacement": {
+    "message": "Preview placement"
+  },
+  "cursorCenter": {
+    "message": "Pointer center"
+  },
+  "screenCenter": {
+    "message": "Screen center"
+  },
+  "imageHideCursorDelay": {
+    "message": "Hide idle cursor after (ms)"
+  },
+  "imageHideCursorInvalid": {
+    "message": "Idle cursor delay must be blank or a non-negative integer"
+  },
+  "imageDisableShortcutsInInput": {
+    "message": "Disable shortcuts while editing text"
+  },
+  "saveImagePreviewSettings": {
+    "message": "Save preview settings"
+  },
+  "resetImagePreviewSettings": {
+    "message": "Restore default settings"
+  },
+  "imageShortcutHint": {
+    "message": "Enter one key per action or leave it blank to disable it. Esc closes, Enter pins, +/- zooms, Ctrl+C copies, and Ctrl+S downloads."
+  },
+  "saveImagePreviewShortcuts": {
+    "message": "Save preview shortcuts"
+  },
+  "resetImagePreviewShortcuts": {
+    "message": "Restore default shortcuts"
+  },
+  "imageSettingsLoadFailed": {
+    "message": "Could not load preview settings: $1",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "imageSettingsSaved": {
+    "message": "Preview settings saved"
+  },
+  "imageSettingsReset": {
+    "message": "Preview settings restored"
+  },
+  "imageShortcutsSaved": {
+    "message": "Preview shortcuts saved"
+  },
+  "imageShortcutsReset": {
+    "message": "Preview shortcuts restored"
+  },
+  "imageKeyFullZoom": {
+    "message": "Enter pinned view"
+  },
+  "imageKeyCaption": {
+    "message": "Show or hide caption"
+  },
+  "imageKeyOpen": {
+    "message": "Open in a new tab"
+  },
+  "imageKeyFlipHorizontal": {
+    "message": "Flip horizontally"
+  },
+  "imageKeyFlipVertical": {
+    "message": "Flip vertically"
+  },
+  "imageKeyRotateLeft": {
+    "message": "Rotate left"
+  },
+  "imageKeyNaturalSize": {
+    "message": "Natural size"
+  },
+  "imageKeyFitHeight": {
+    "message": "Fit to height"
+  },
+  "duplicateShortcutKey": {
+    "message": "Shortcut $1 is assigned more than once",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "duplicateMediaRule": {
+    "message": "Media rule $1 is duplicated",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "mediaRuleValueError": {
+    "message": "A media-rule extension or type cannot be empty"
+  },
   "toggleMediaCapture": {
     "message": "Start or stop media discovery"
   },
@@ -181,7 +297,7 @@
     "message": "Media finder"
   },
   "mediaCaptureSubtitle": {
-    "message": "Filter and preview media from this page"
+    "message": "Filter and list media resources on the current page"
   },
   "captureRulesTitle": {
     "message": "Finder rules"
@@ -302,7 +418,11 @@
   },
   "mediaCaptureStatus": {
     "message": "Media finder $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "captureStopped": {
     "message": "Media finder stopped"
@@ -324,11 +444,22 @@
   },
   "captureSummary": {
     "message": "Found $1 media resources on this page",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "captureSummaryFiltered": {
     "message": "Found $1 media resources; showing $2",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "noMediaFound": {
     "message": "No media resources found on this page"
@@ -368,7 +499,11 @@
   },
   "saveFailed": {
     "message": "Save failed: $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "playbackSaved": {
     "message": "Playback settings saved"
@@ -393,14 +528,25 @@
   },
   "sortTitle": {
     "message": "Currently sorted by $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "creatingFullDownload": {
     "message": "Creating full-video download…"
   },
   "separateTrackMemoryWarning": {
     "message": "This quality has separate video and audio tracks that must be merged in memory. Estimated file size: $1; estimated peak memory: $2 (at 3×). Continue?",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "memoryWarningTitle": {
     "message": "Memory usage warning"
@@ -410,7 +556,11 @@
   },
   "downloadFailed": {
     "message": "Download failed: $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "readingPlaylist": {
     "message": "Reading media playlist…"
@@ -423,7 +573,11 @@
   },
   "qualityReadFailed": {
     "message": "Could not read qualities: $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "noDownloadOptions": {
     "message": "No download options are available"
@@ -448,7 +602,11 @@
   },
   "restoreFailed": {
     "message": "Restore failed: $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "captureRulesReset": {
     "message": "Default finder rules restored"
@@ -461,11 +619,19 @@
   },
   "browserTitleOther": {
     "message": "Web Media Assistant\nFound $1 media resources on other pages",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "browserTitleCurrent": {
     "message": "Web Media Assistant\nFound $1 media resources on this page",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "ariaRewind": {
     "message": "Rewind"
@@ -517,7 +683,11 @@
   },
   "unsupportedEncryption": {
     "message": "The playlist uses $1 encryption, which is not supported by the lightweight downloader",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "unknown": {
     "message": "unknown"
@@ -539,7 +709,11 @@
   },
   "httpFailed": {
     "message": "Request failed (HTTP $1)",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "rangeFailed": {
     "message": "The server did not return the requested media byte range"
@@ -561,7 +735,17 @@
   },
   "downloadAndMux": {
     "message": "Downloading and muxing $LABEL$$COMPLETED$/$TOTAL$",
-    "placeholders": { "label": { "content": "$1" }, "completed": { "content": "$2" }, "total": { "content": "$3" } }
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "completed": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
   },
   "muxLoadFailed": {
     "message": "The MP4 transmuxing component failed to load"
@@ -571,7 +755,11 @@
   },
   "approximately": {
     "message": "Approx. $1",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "audioOnly": {
     "message": "Audio only"
@@ -599,7 +787,11 @@
   },
   "createTrackFailed": {
     "message": "MP4Box could not create the $1 track",
-    "placeholders": { "arg1": { "content": "$1" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
   },
   "audio": {
     "message": "audio"
@@ -621,7 +813,17 @@
   },
   "downloadingLabel": {
     "message": "Downloading and muxing $LABEL$$COMPLETED$/$TOTAL$",
-    "placeholders": { "label": { "content": "$1" }, "completed": { "content": "$2" }, "total": { "content": "$3" } }
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "completed": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
   },
   "cancelDownload": {
     "message": "Cancel"
@@ -643,11 +845,31 @@
   },
   "fetchingSegmentLabel": {
     "message": "Fetching $1segment $2/$3…",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" }, "arg3": { "content": "$3" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
   },
   "muxingSegmentLabel": {
     "message": "Muxing $1segment $2/$3…",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" }, "arg3": { "content": "$3" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
   },
   "videoLabel": {
     "message": "video"
@@ -672,7 +894,14 @@
   },
   "temporaryStorageInsufficient": {
     "message": "Not enough temporary storage: approximately $1 required, $2 available",
-    "placeholders": { "arg1": { "content": "$1" }, "arg2": { "content": "$2" } }
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "temporaryFileClosed": {
     "message": "The temporary download file is already closed"

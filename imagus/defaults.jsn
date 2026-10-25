@@ -1,21 +1,130 @@
 {
   "hz": {
     "deactivate": 0, "actTrigger": "m2", "delay": 300, "delayOnIdle": true,
-    "waitHide": false, "markOnHover": "cr", "preload": 0,
-    "hiRes": true,
+    "waitHide": true, "markOnHover": "cr", "preload": 0,
     "capStyle": 0,
-    "capPos": 1, "capWrapByDef": false, "capText": true, "capLinkText": true,
+    "capPos": 1, "capText": true, "capLinkText": true,
     "capWH": true, "capQuality": true, "fzOnPress": 1, "fzCloseClick": 1,
     "placement": 4,
     "hideIdleCursor": 500,
-    "css": "margin: 3px 3px 20px; background: #f8f8ff padding-box; border: 3px solid hsla(0,0%,95%,.6); border-radius: 2px; box-shadow: 0 0 2px #666",
+    "css": "margin: 3px 3px 20px; background: #f8f8ff padding-box; border-radius: 2px",
     "scOffInInput": true, "LDRsrc": "", "LDRcss": "",
     "LDRdelay": 300, "LDRbgOpacity": 100, "LDRanimate": true
   },
   "keys": {
-    "mOrig": "1", "mFit": "2", "mFitW": "3", "mFitH": "4",
-    "rotL": "E", "rotR": "R", "flipH": "Q", "flipV": "W",
-    "hz_preload": "L", "hz_hiRes": "Tab", "hz_fullZm": "Z",
-    "hz_caption": "C", "hz_open": "O"
-  }
+    "mOrig": "1", "mFitH": "2",
+    "rotL": "L", "flipH": "M", "flipV": "V",
+    "hz_fullZm": "Z",
+    "hz_caption": "H", "hz_open": "T"
+  },
+  "urlRules": [
+    {
+      "enabled": true,
+      "name": "X/Twitter",
+      "pattern": "*://pbs.twimg.com/media/*?*name=%s*",
+      "values": [["orig", "large", "medium", "small"]]
+    },
+    {
+      "enabled": true,
+      "name": "TMDb",
+      "pattern": "*://image.tmdb.org/t/p/%s/*",
+      "values": [["original", "w1280", "w780", "w500", "w342"]]
+    },
+    {
+      "enabled": true,
+      "name": "Pinterest",
+      "pattern": "*://i.pinimg.com/%s/*",
+      "values": [["originals", "736x", "564x", "474x"]]
+    },
+    {
+      "enabled": true,
+      "name": "SoundCloud",
+      "pattern": "*://i*.sndcdn.com/artworks-*-%s.*",
+      "values": [["original", "t500x500", "large"]]
+    },
+    {
+      "enabled": true,
+      "name": "Apple",
+      "pattern": "*://is*.mzstatic.com/image/thumb/*/%s.*",
+      "values": [["9999x9999bb", "3000x3000bb", "1200x1200bb", "600x600bb"]]
+    },
+    {
+      "enabled": true,
+      "name": "Squarespace",
+      "pattern": "*://images.squarespace-cdn.com/*?*format=%s*",
+      "values": [["2500w", "1500w", "1000w", "750w"]]
+    },
+    {
+      "enabled": true,
+      "name": "Gravatars(s)",
+      "pattern": "*://*gravatar.com/avatar/*?*s=%s*",
+      "values": [["2048", "1024", "512", "256", "128"]]
+    },
+    {
+      "enabled": true,
+      "name": "Gravatar(size)",
+      "pattern": "*://*gravatar.com/avatar/*?*size=%s*",
+      "values": [["2048", "1024", "512", "256", "128"]]
+    },
+    {
+      "enabled": true,
+      "name": "Discord CDN",
+      "pattern": "*://cdn.discordapp.com/*?*size=%s*",
+      "values": [["4096", "2048", "1024", "512", "256"]]
+    },
+    {
+      "enabled": true,
+      "name": "Discord",
+      "pattern": "*://media.discordapp.net/*?*size=%s*",
+      "values": [["4096", "2048", "1024", "512", "256"]]
+    },
+    {
+      "enabled": true,
+      "name": "YouTube",
+      "pattern": "*://i*.ytimg.com/vi*/*/%s.*",
+      "values": [["maxresdefault", "sddefault", "hqdefault", "mqdefault", "default"]]
+    },
+    {
+      "enabled": true,
+      "name": "eBay",
+      "pattern": "*://i.ebayimg.com/images/g/*/s-l%s.*",
+      "values": [["1600", "1200", "800", "500"]]
+    },
+    {
+      "enabled": true,
+      "name": "Google Image CDN",
+      "pattern": "*://lh*.googleusercontent.com/*=%s",
+      "values": [["s0", "w4096", "w2048", "w1200"]]
+    },
+    {
+      "enabled": true,
+      "name": "Unsplash",
+      "pattern": "*://*unsplash.com/*photo-*?*w=%s*",
+      "values": [["2400", "1920", "1600", "1200", "800"]]
+    },
+    {
+      "enabled": true,
+      "name": "GitHub Avatars",
+      "pattern": "*://avatars.githubusercontent.com/*?*s=%s*",
+      "values": [["1024", "800", "460", "400"]]
+    },
+    {
+      "enabled": true,
+      "name": "Flickr",
+      "pattern": "*://live.staticflickr.com/*/*_*_%s.*",
+      "values": [["k", "h", "b", "c", "z", "m"]]
+    },
+    {
+      "enabled": true,
+      "name": "ArtStation",
+      "pattern": "*://cdn*.artstation.com/p/assets/images/images/*/*/*/%s/*",
+      "values": [["4k", "large", "medium", "small"]]
+    },
+    {
+      "enabled": true,
+      "name": "Twitch Avatars",
+      "pattern": "*://static-cdn.jtvnw.net/jtv_user_pictures/*-profile_image-%s.*",
+      "values": [["600x600", "300x300", "150x150", "70x70"]]
+    }
+  ]
 }
