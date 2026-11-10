@@ -63,6 +63,7 @@
   "clearPreviewRuleSearch": { "message": "Clear search" },
   "noPreviewRuleMatches": { "message": "No preview rules match your search." },
   "previewRuleRequired": { "message": "Rule name, URL template, and replacement candidates are required" },
+  "previewRuleNameDuplicate": { "message": "Preview rule name $1 is duplicated", "placeholders": { "name": { "content": "$1" } } },
   "previewRulePatternInvalid": { "message": "The URL template must contain 1 to 6 %s replacement markers" },
   "previewRuleGroupsInvalid": { "message": "Every %s marker requires one adjacent [] candidate group" },
   "previewRuleValuesInvalid": { "message": "Each group must contain 1 to 6 candidates, with no value longer than 100 characters" },

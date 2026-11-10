@@ -63,6 +63,7 @@
   "clearPreviewRuleSearch": { "message": "清空搜索" },
   "noPreviewRuleMatches": { "message": "没有匹配的预览规则。" },
   "previewRuleRequired": { "message": "规则名称、URL 模板和替换候选值均不能为空" },
+  "previewRuleNameDuplicate": { "message": "预览规则名称 $1 重复", "placeholders": { "name": { "content": "$1" } } },
   "previewRulePatternInvalid": { "message": "URL 模板必须包含 1 至 6 个 %s 替换符" },
   "previewRuleGroupsInvalid": { "message": "每个 %s 都必须分别使用连续的 [] 候选分组" },
   "previewRuleValuesInvalid": { "message": "每个分组必须包含 1 至 6 个候选值，每个值不能超过 100 个字符" },

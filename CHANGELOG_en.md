@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 - 2026-11-10
+
+- Enabled media discovery by default, covered common media, image, and PDF extensions, and retained disabled `m4s` and `ts` segment blockers.
+- Applied the same name sorting, duplicate validation, append-at-end behavior, and compact layout to extension and media-type rules.
+- Moved finder rules to a dedicated subpage where extension and media-type lists expand with the page.
+- Disabled `svg` by default; preview rules are sorted by name when displayed and saved, with case-insensitive duplicate-name validation.
+- Simplified the pinning settings label and assigned transform and sizing shortcuts to `1` through `5`.
+- Removed the unused HTML insertion helper.
+
 ## 0.2.0 - 2026-10-25
 
 Compared with 0.1.39:

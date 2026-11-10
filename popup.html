@@ -44,17 +44,19 @@
 
       <section id="capturePanel" class="subpage hidden">
         <div class="subpage-header feature-header"><button type="button" class="back-button" data-back="mainMenu" data-i18n="back">返回</button><span><b data-i18n="mediaCaptureTitle">媒体检索</b><small id="captureCardSummary" data-i18n="loadingCaptureData">正在读取检索数据…</small></span><label class="feature-switch" title="启用或停止媒体检索" data-i18n-title="toggleMediaCapture"><input id="captureEnabled" type="checkbox" /><span class="feature-slider"></span></label></div>
+        <button type="button" class="menu-card" data-page="captureRulesPanel"><span class="card-icon">↗</span><span><b data-i18n="captureRulesTitle">检索规则</b><small data-i18n="captureRulesSubtitle">设置需要检索的文件后缀和媒体类型</small></span></button>
         <div class="capture-filter-row"><input id="captureFilter" class="capture-filter" type="text" placeholder="筛选名称、类型或网址" data-i18n-placeholder="filterMedia" /><button type="button" id="captureSort" class="capture-sort" title="当前按默认顺序排列" data-i18n="sortDefault" data-i18n-title="sortDefaultTitle">默认</button></div>
         <div id="captureList" class="capture-list"></div>
-        <details class="rules-box">
-          <summary class="rules-summary" tabindex="-1"><span class="rules-copy"><b data-i18n="captureRulesTitle">检索规则</b><small data-i18n="captureRulesSubtitle">设置需要检索的文件后缀和媒体类型</small></span><button type="button" id="captureRulesToggle" class="rules-chevron" aria-expanded="false"></button></summary>
-          <div class="rule-heading"><b data-i18n="extensionRules">检索后缀</b><small data-i18n="extensionRulesHint">取消勾选会明确排除；删除后将继续按类型判断</small></div>
-          <div class="rule-columns"><span data-i18n="enabled">启用</span><span data-i18n="extension">后缀</span><span data-i18n="minimumKb">最小 KB</span><span></span></div><div id="extensionRules" class="rule-list"></div>
-          <button type="button" class="outline compact" data-add-rule="Ext" data-i18n="addExtension">＋ 添加后缀</button>
-          <div class="rule-heading type-heading"><b data-i18n="typeRules">检索类型</b><small data-i18n="typeRulesHint">后缀未配置时用于补充判断，例如 video/*</small></div>
-          <div class="rule-columns"><span data-i18n="enabled">启用</span><span data-i18n="type">类型</span><span data-i18n="minimumKb">最小 KB</span><span></span></div><div id="typeRules" class="rule-list"></div>
-          <button type="button" class="outline compact" data-add-rule="Type" data-i18n="addType">＋ 添加类型</button><button type="button" id="saveCaptureRules" class="primary" data-i18n="saveCaptureRules">保存检索规则</button><button type="button" id="resetCaptureRules" class="reset-button" data-i18n="resetCaptureRules">恢复默认检索规则</button>
-        </details>
+      </section>
+
+      <section id="captureRulesPanel" class="subpage hidden">
+        <div class="subpage-header"><button type="button" class="back-button" data-back="capturePanel" data-i18n="back">返回</button><span><b data-i18n="captureRulesTitle">检索规则</b><small data-i18n="captureRulesSubtitle">设置需要检索的文件后缀和媒体类型</small></span></div>
+        <div class="rule-heading"><b data-i18n="extensionRules">检索后缀</b><small data-i18n="extensionRulesHint">取消勾选会明确排除；删除后将继续按类型判断</small></div>
+        <div class="rule-columns"><span data-i18n="enabled">启用</span><span data-i18n="extension">后缀</span><span data-i18n="minimumKb">最小 KB</span><span></span></div><div id="extensionRules" class="rule-list"></div>
+        <button type="button" class="outline compact" data-add-rule="Ext" data-i18n="addExtension">＋ 添加后缀</button>
+        <div class="rule-heading type-heading"><b data-i18n="typeRules">检索类型</b><small data-i18n="typeRulesHint">后缀未配置时用于补充判断，例如 video/*</small></div>
+        <div class="rule-columns"><span data-i18n="enabled">启用</span><span data-i18n="type">类型</span><span data-i18n="minimumKb">最小 KB</span><span></span></div><div id="typeRules" class="rule-list"></div>
+        <button type="button" class="outline compact" data-add-rule="Type" data-i18n="addType">＋ 添加类型</button><button type="button" id="saveCaptureRules" class="primary" data-i18n="saveCaptureRules">保存检索规则</button><button type="button" id="resetCaptureRules" class="reset-button" data-i18n="resetCaptureRules">恢复默认检索规则</button>
       </section>
 
       <section id="imagePreviewPanel" class="subpage hidden">

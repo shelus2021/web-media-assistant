@@ -92,19 +92,6 @@ input[type="text"], input[type="number"], textarea { caret-color: auto; }
 .capture-quality:disabled { color: #999; background: #f5f5f5; border-color: #ddd; cursor: not-allowed; }
 .capture-preview { display: block; width: 100%; max-height: 170px; margin-top: 7px; border-radius: 4px; background: #000; }
 .capture-preview-error { display: block; margin-top: 6px; color: #b3261e; font-size: 10px; line-height: 1.35; }
-.rules-box { margin-top: 12px; border: 1px solid #dfe4ea; border-radius: 7px; background: #fff; overflow: hidden; }
-.rules-box > summary { cursor: default; list-style: none; }
-.rules-box > summary::-webkit-details-marker { display: none; }
-.rules-summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 9px 11px; background: #f8fafc; user-select: none; }
-.rules-copy { min-width: 0; }
-.rules-copy b, .rules-copy small { display: block; }
-.rules-copy small { margin-top: 3px; overflow: hidden; color: #777; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.rules-chevron { flex: none; width: 25px; height: 25px; padding: 0; border: 0; border-radius: 4px; color: #4f5863; background: transparent; font-size: 18px; line-height: 23px; text-align: center; }
-.rules-chevron::before { content: "▸"; }
-.rules-box[open] .rules-chevron::before { content: "▾"; }
-.rules-chevron:hover { background: #e9edf2; }
-.rules-box[open] { padding: 0 10px 10px; }
-.rules-box[open] .rules-summary { margin: 0 -10px 8px; border-bottom: 1px solid #e5e9ee; }
 .settings-group { margin: 10px 0 14px; padding: 0 10px; border: 1px solid #e1e5ea; border-radius: 7px; }
 .settings-group h3 { margin: 0 -10px; padding: 8px 10px; border-bottom: 1px solid #e7eaee; background: #f8fafc; font-size: 12px; }
 .settings-group .setting:last-child, .settings-group .field:last-child { border-bottom: 0; }
@@ -144,11 +131,11 @@ input[type="text"], input[type="number"], textarea { caret-color: auto; }
 .type-heading { margin-top: 14px; }
 .rule-columns, .rule-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 64px 24px; gap: 4px; align-items: center; }
 .rule-columns { padding: 0 2px 4px; color: #777; font-size: 9px; text-align: center; }
-.rule-list { max-height: 142px; overflow-y: auto; border: 1px solid #e1e4e8; border-radius: 5px; }
-.rule-row { padding: 4px; border-bottom: 1px solid #edf0f2; }
+.rule-list { border: 1px solid #e1e4e8; border-radius: 5px; }
+.rule-row { padding: 2px 4px; border-bottom: 1px solid #edf0f2; }
 .rule-row:last-child { border-bottom: 0; }
 .rule-row input[type="checkbox"] { width: 15px; height: 15px; margin: auto; accent-color: #2864d7; }
-.rule-row input[type="text"], .rule-row input[type="number"] { width: 100%; min-width: 0; padding: 5px 4px; border: 1px solid #c7cbd1; border-radius: 4px; font: inherit; }
+.rule-row input[type="text"], .rule-row input[type="number"] { width: 100%; min-width: 0; padding: 3px 4px; border: 1px solid #c7cbd1; border-radius: 4px; font: inherit; }
 .rule-remove { padding: 0; border: 0; color: #b3261e; background: transparent; font-size: 17px; }
 .compact { margin-top: 6px; padding: 5px; }
 .shortcut-row { display: grid; grid-template-columns: minmax(92px, 1fr) 65px 62px auto; gap: 6px; align-items: center; margin: 5px 0; }

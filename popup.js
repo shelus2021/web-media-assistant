@@ -248,6 +248,9 @@ document.addEventListener("DOMContentLoaded", () => {
       root.appendChild(empty);
     }
   }
+  function sortPreviewUrlRules(rules) {
+    return [...rules].sort((left, right) => String(left.name || "").localeCompare(String(right.name || ""), undefined, { numeric: true, sensitivity: "base" }));
+  }
   function renderImagePreviewRules() {
     if (!imagePreviewPrefs) return;
     const root = $("#imagePreviewRuleList");
@@ -260,11 +263,12 @@ document.addEventListener("DOMContentLoaded", () => {
       root.appendChild(empty);
       return;
     }
-    rules.forEach(rule => root.appendChild(createPreviewUrlRuleRow(rule)));
+    sortPreviewUrlRules(rules).forEach(rule => root.appendChild(createPreviewUrlRuleRow(rule)));
     applyPreviewUrlRuleFilter();
   }
   function readImagePreviewRules() {
     const rules = [];
+    const seenNames = new Set();
     document.querySelectorAll("#imagePreviewRuleList .preview-url-rule").forEach(row => {
       const value = key => row.querySelector(`[data-rule-field="${key}"]`).value.trim();
       const name = value("name");
@@ -272,6 +276,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const placeholderCount = (pattern.match(/%s/g) || []).length;
       const rawValues = value("values");
       if (!name || !pattern || !rawValues) throw new Error(t("previewRuleRequired"));
+      const normalizedName = name.toLocaleLowerCase();
+      if (seenNames.has(normalizedName)) throw new Error(t("previewRuleNameDuplicate", name));
+      seenNames.add(normalizedName);
       if (!placeholderCount || placeholderCount > 6) throw new Error(t("previewRulePatternInvalid"));
       const matches = [...rawValues.matchAll(/\[([^\]]*)\]/g)];
       if (matches.map(match => match[0]).join("").replace(/\s+/g, "") !== rawValues.replace(/\s+/g, "") || matches.length !== placeholderCount) {
@@ -794,11 +801,15 @@ document.addEventListener("DOMContentLoaded", () => {
     row.append(state, value, size, remove);
     return row;
   }
+  function sortRuleRows(kind, rules) {
+    const key = kind === "Ext" ? "ext" : "type";
+    return [...rules].sort((left, right) => String(left[key] || "").localeCompare(String(right[key] || ""), undefined, { numeric: true, sensitivity: "base" }));
+  }
   function renderRuleRows(kind) {
     const root = $(kind === "Ext" ? "#extensionRules" : "#typeRules");
     root.textContent = "";
     const fragment = document.createDocumentFragment();
-    captureRules[kind].forEach((item) => fragment.appendChild(createRuleRow(kind, item)));
+    sortRuleRows(kind, captureRules[kind]).forEach((item) => fragment.appendChild(createRuleRow(kind, item)));
     root.appendChild(fragment);
   }
   function renderCaptureRules() {
@@ -894,8 +905,8 @@ document.addEventListener("DOMContentLoaded", () => {
     $(".content").scrollTop = 0;
     if (panelId === "capturePanel") {
       renderCapture();
-      renderCaptureRules();
     }
+    if (panelId === "captureRulesPanel") renderCaptureRules();
     if (panelId === "imagePreviewPanel") renderImagePreviewToggle();
     if (["imagePreviewSettingsPanel", "imagePreviewRulesPanel", "imagePreviewShortcutsPanel"].includes(panelId)) loadImagePreviewPrefs();
   }
@@ -907,25 +918,6 @@ document.addEventListener("DOMContentLoaded", () => {
     $(".content").scrollTop = 0;
     document.querySelectorAll("#captureList audio, #captureList video").forEach((media) => media.pause());
   }
-  const captureRulesBox = $(".rules-box");
-  const captureRulesSummary = $(".rules-summary", captureRulesBox);
-  const captureRulesToggle = $("#captureRulesToggle");
-  const updateCaptureRulesToggle = () => {
-    const expanded = captureRulesBox.open;
-    const label = t(expanded ? "collapsePreviewRule" : "expandPreviewRule");
-    captureRulesToggle.title = label;
-    captureRulesToggle.setAttribute("aria-label", label);
-    captureRulesToggle.setAttribute("aria-expanded", String(expanded));
-  };
-  captureRulesSummary.addEventListener("click", (event) => event.preventDefault());
-  captureRulesToggle.addEventListener("click", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    captureRulesBox.open = !captureRulesBox.open;
-    updateCaptureRulesToggle();
-  });
-  captureRulesBox.addEventListener("toggle", updateCaptureRulesToggle);
-  updateCaptureRulesToggle();
   document.addEventListener("click", (event) => {
     const entry = event.target.closest("[data-page]");
     if (entry) {
@@ -1042,14 +1034,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!imagePreviewPrefs) return;
     try {
       const next = cloneJson(imagePreviewPrefs);
-      next.urlRules = readImagePreviewRules();
+      next.urlRules = sortPreviewUrlRules(readImagePreviewRules());
       persistImagePreviewPrefs(next, t("previewRulesSaved"));
+      renderImagePreviewRules();
     } catch (error) { setStatus(error.message, true); }
   });
   $("#resetImagePreviewRules").addEventListener("click", () => {
     if (!imagePreviewDefaults || !imagePreviewPrefs) return;
     const next = cloneJson(imagePreviewPrefs);
-    next.urlRules = cloneJson(imagePreviewDefaults.urlRules);
+    next.urlRules = sortPreviewUrlRules(cloneJson(imagePreviewDefaults.urlRules));
     imagePreviewPrefs = next;
     renderImagePreviewRules();
     persistImagePreviewPrefs(next, t("previewRulesReset"));
@@ -1245,7 +1238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (preview && typeof preview.pause === "function") preview.pause();
     requestAnimationFrame(updatePinnedDownloadItem);
   }, true);
-  $("#capturePanel").addEventListener("click", (event) => {
+  $("#captureRulesPanel").addEventListener("click", (event) => {
     const remove = event.target.closest(".rule-remove");
     if (remove) {
       remove.closest(".rule-row").remove();
@@ -1262,11 +1255,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("#saveCaptureRules").addEventListener("click", () => {
     try {
-      const Ext = readRuleRows("Ext");
-      const Type = readRuleRows("Type");
+      const Ext = sortRuleRows("Ext", readRuleRows("Ext"));
+      const Type = sortRuleRows("Type", readRuleRows("Type"));
       chrome.storage.sync.set({ Ext, Type }, () => {
         if (chrome.runtime.lastError) return setCaptureRulesStatus(t("saveFailed", chrome.runtime.lastError.message), true);
         captureRules = { Ext, Type };
+        renderRuleRows("Ext");
+        renderRuleRows("Type");
         setCaptureRulesStatus(t("captureRulesSaved"));
       });
     } catch (error) {
