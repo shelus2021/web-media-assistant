@@ -2,14 +2,14 @@
   "hz": {
     "deactivate": 0, "actTrigger": "m2", "delay": 300, "delayOnIdle": true,
     "waitHide": true, "markOnHover": "cr", "preload": 0,
-    "capStyle": 0,
+    "capStyle": 2,
     "capPos": 1, "capText": true, "capLinkText": true,
     "capWH": true, "capQuality": true, "fzOnPress": 1, "fzCloseClick": 1,
     "placement": 4,
     "hideIdleCursor": 500,
-    "css": "margin: 3px 3px 20px; background: #f8f8ff padding-box; border-radius: 2px",
+    "css": "margin: 3px 3px 20px; background: transparent; border-radius: 2px",
     "scOffInInput": true, "LDRsrc": "", "LDRcss": "",
-    "LDRdelay": 300, "LDRbgOpacity": 100, "LDRanimate": true
+    "LDRdelay": 300, "LDRbgOpacity": 0, "LDRanimate": true
   },
   "keys": {
     "mOrig": "4", "mFitH": "5",

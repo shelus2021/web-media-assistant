@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "网页媒体助手"
+    "message": "媒体助手"
   },
   "extensionShortName": {
     "message": "媒体助手"
@@ -9,7 +9,7 @@
     "message": "提供播放控制、媒体检索和悬停图片预览"
   },
   "browserActionTitle": {
-    "message": "网页媒体助手\n当前页面已检索到 0 个媒体资源"
+    "message": "媒体助手\n当前页面已检索到 0 个媒体资源"
   },
   "playbackControlTitle": {
     "message": "播放控制"
@@ -29,6 +29,9 @@
   "imagePreviewSubtitle": {
     "message": "悬停查看原图与动图"
   },
+  "touchPreviewHint": {
+    "message": "在触屏设备上长按图片开始预览，轻触放大图可关闭未贴图预览；双指同时轻触可贴图，贴图后可单指移动，并用双指缩放或旋转，接近四个正方向时自动吸附。"
+  },
   "toggleImagePreview": {
     "message": "启用或禁用图片预览"
   },
@@ -39,7 +42,7 @@
     "message": "预览选项"
   },
   "imagePreviewSettingsSubtitle": {
-    "message": "触发、加载、标题、贴图与外观"
+    "message": "鼠标触发、通用加载、标题、贴图与外观"
   },
   "imagePreviewRulesTitle": { "message": "预览规则" },
   "imagePreviewRulesSubtitle": { "message": "通过 URL 模板依次尝试更高清的地址" },
@@ -76,7 +79,10 @@
     "message": "缩放、旋转、贴图"
   },
   "imageTriggerGroup": {
-    "message": "触发与加载"
+    "message": "触发"
+  },
+  "touchTriggerSummary": {
+    "message": "（触摸时长按预览、双指点击贴图）"
   },
   "hold": {
     "message": "按住"
@@ -137,6 +143,9 @@
   },
   "imageCaptionStyle": {
     "message": "标题样式"
+  },
+  "automaticTheme": {
+    "message": "自动"
   },
   "dark": {
     "message": "深色"
@@ -619,7 +628,7 @@
     "message": "M3U8 下载失败"
   },
   "browserTitleOther": {
-    "message": "网页媒体助手\n其他页面已检索到 $1 个媒体资源",
+    "message": "媒体助手\n其他页面已检索到 $1 个媒体资源",
     "placeholders": {
       "arg1": {
         "content": "$1"
@@ -627,7 +636,7 @@
     }
   },
   "browserTitleCurrent": {
-    "message": "网页媒体助手\n当前页面已检索到 $1 个媒体资源",
+    "message": "媒体助手\n当前页面已检索到 $1 个媒体资源",
     "placeholders": {
       "arg1": {
         "content": "$1"
@@ -648,6 +657,9 @@
   },
   "ariaAdvance": {
     "message": "前进"
+  },
+  "ariaToggleControls": {
+    "message": "收起或展开播放按钮"
   },
   "invalidM3u8": {
     "message": "该地址不是有效的 M3U8 清单"
@@ -811,6 +823,42 @@
   },
   "browserDownloadFailed": {
     "message": "浏览器未能创建下载任务"
+  },
+  "androidDownloadTitle": {
+    "message": "媒体下载"
+  },
+  "androidDownloadPreparing": {
+    "message": "正在准备文件，请保持此页面打开。"
+  },
+  "androidDownloadReady": {
+    "message": "文件已准备好，请点击保存文件。若浏览器仍未保存，可使用系统分享或打开文件。"
+  },
+  "androidDownloadSave": {
+    "message": "保存文件"
+  },
+  "androidDownloadShare": {
+    "message": "系统分享"
+  },
+  "androidDownloadOpen": {
+    "message": "打开文件"
+  },
+  "androidDownloadStarted": {
+    "message": "已将文件交给浏览器下载。"
+  },
+  "androidDownloadOpened": {
+    "message": "已打开并切换至 Android 文件保存页面"
+  },
+  "androidDownloadOpenedBackground": {
+    "message": "文件保存页面已在新标签页打开，请手动切换至该标签页"
+  },
+  "androidDownloadOpenPage": {
+    "message": "打开文件保存页面"
+  },
+  "androidDownloadFailed": {
+    "message": "文件准备失败。"
+  },
+  "androidDownloadExpired": {
+    "message": "下载任务已过期，请返回原页面重新下载"
   },
   "downloadingLabel": {
     "message": "正在下载并封装$LABEL$$COMPLETED$/$TOTAL$",

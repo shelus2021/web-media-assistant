@@ -6,10 +6,6 @@
   user-select: none;
 }
 
-:host(:hover) #controls {
-  display: inline-flex;
-}
-
 #controller {
   position: absolute;
   top: 0;
@@ -28,16 +24,10 @@
   padding: 2px 4px;
   margin: 10px 10px 10px 6px;
 
-  cursor: default;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  touch-action: none;
   z-index: 9999999;
-}
-
-#controller:hover {
-  opacity: 0.7;
-}
-
-#controller:hover > .draggable {
-  margin-right: 6px;
 }
 
 #controls {
@@ -48,12 +38,10 @@
   line-height: 18px;
 }
 
-#controller.controls-below:hover > .draggable,
 #controller.controls-below.dragging > .draggable {
   margin-right: 0;
 }
 
-#controller.controls-below:hover,
 #controller.controls-below.dragging {
   border-radius: 4px 4px 0 0;
 }
@@ -93,8 +81,7 @@
   align-items: center;
   flex: 0 0 auto;
   line-height: 18px;
-  cursor: -webkit-grab;
-  cursor: -moz-grab;
+  cursor: inherit;
 }
 
 .draggable:active {
@@ -120,13 +107,78 @@ button:focus {
   outline: 0;
 }
 
-button:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.2);
-}
-
 button:active {
   background: rgba(255, 255, 255, 0.35);
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+  :host(:hover) #controls {
+    display: inline-flex;
+  }
+
+  #controller:hover {
+    opacity: 0.7;
+  }
+
+  #controller:hover > .draggable {
+    margin-right: 6px;
+  }
+
+  #controller.controls-below:hover > .draggable {
+    margin-right: 0;
+  }
+
+  #controller.controls-below:hover {
+    border-radius: 4px 4px 0 0;
+  }
+
+  button:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :host #controls {
+    display: inline-flex;
+  }
+
+  #controller {
+    min-height: 36px;
+    padding: 4px 6px;
+  }
+
+  #controller > .draggable {
+    min-width: 34px;
+    min-height: 28px;
+    justify-content: center;
+    margin-right: 6px;
+  }
+
+  #controls {
+    height: 28px;
+    line-height: 28px;
+  }
+
+  #controls button {
+    min-width: 34px;
+    min-height: 28px;
+    line-height: 28px;
+    touch-action: none;
+  }
+
+  #controller.touch-collapsed #controls {
+    display: none;
+  }
+
+  #controller.touch-collapsed > .draggable {
+    margin-right: 0;
+  }
+
+  #controller.controls-below.touch-collapsed,
+  #controller.controls-below.touch-collapsed.dragging {
+    border-radius: 4px;
+  }
 }
 
 button.rw {

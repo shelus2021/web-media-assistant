@@ -500,9 +500,19 @@ document.addEventListener("DOMContentLoaded", () => {
         cancel.title = t("cancelDownload");
         statusPanel.appendChild(cancel);
       }
+      if (state.downloadToken) {
+        const openDownload = document.createElement("button");
+        openDownload.type = "button";
+        openDownload.className = "capture-download-cancel";
+        openDownload.dataset.androidDownload = state.downloadToken;
+        openDownload.textContent = t("androidDownloadOpenPage");
+        openDownload.title = t("androidDownloadOpenPage");
+        statusPanel.appendChild(openDownload);
+      }
     }
     if (!variants || !variants.length) return;
     const downloadLocked = hasActiveDownload();
+    const ownDownloadLocked = state && activeDownloadStates.has(state.state);
     const choices = document.createElement("div");
     choices.className = "capture-quality-list";
     variants.forEach((variant, qualityIndex) => {
@@ -511,10 +521,11 @@ document.addEventListener("DOMContentLoaded", () => {
       button.className = "capture-quality";
       button.dataset.hlsQuality = qualityIndex;
       button.textContent = variant.label;
+      const variantLocked = variant.direct ? ownDownloadLocked : downloadLocked;
       button.title = !variant.supported
         ? variant.reason
-        : (downloadLocked ? t("downloadAlreadyRunning") : t(variant.direct ? "downloadFile" : "downloadQuality"));
-      button.disabled = !variant.supported || downloadLocked;
+        : (variantLocked ? t("downloadAlreadyRunning") : t(variant.direct ? "downloadFile" : "downloadQuality"));
+      button.disabled = !variant.supported || variantLocked;
       choices.appendChild(button);
     });
     panel.appendChild(choices);
@@ -532,19 +543,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function updatePinnedDownloadItem() {
     const root = $("#captureList");
-    if (!root) return;
+    const scroller = $(".content");
+    const filterRow = $(".capture-filter-row");
+    if (!root || !scroller || !filterRow) return;
     const previous = $(".capture-download-pin", root);
     const details = $(".capture-item.download-active", root);
     const summary = details && $(":scope > summary", details);
-    if (!details || !summary || root.scrollHeight <= root.clientHeight) {
+    if (!details || !summary || $("#capturePanel").classList.contains("hidden")) {
       if (previous) previous.remove();
       return;
     }
     const rootRect = root.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    const filterRect = filterRow.getBoundingClientRect();
+    const viewportTop = Math.max(scrollerRect.top, filterRect.bottom);
+    const viewportBottom = scrollerRect.bottom;
     const summaryRect = summary.getBoundingClientRect();
     let side = "";
-    if (summaryRect.bottom <= rootRect.top) side = "top";
-    else if (summaryRect.top >= rootRect.bottom) side = "bottom";
+    if (rootRect.bottom > viewportTop && summaryRect.bottom <= viewportTop) side = "top";
+    else if (rootRect.top < viewportBottom && summaryRect.top >= viewportBottom) side = "bottom";
     if (!side) {
       if (previous) previous.remove();
       return;
@@ -555,8 +572,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (previous) previous.remove();
       return;
     }
+    const positionPin = (pin) => {
+      const pinHeight = pin.offsetHeight;
+      const viewportOffset = side === "bottom" ? viewportBottom - pinHeight : viewportTop;
+      const maxTop = Math.max(0, root.offsetHeight - pinHeight);
+      pin.style.top = Math.min(maxTop, Math.max(0, viewportOffset - rootRect.top)) + "px";
+    };
     if (previous && previous.dataset.index === String(index) && previous.classList.contains(side)) {
-      previous.style.top = Math.max(0, root.scrollTop + (side === "bottom" ? root.clientHeight - previous.offsetHeight : 0)) + "px";
+      positionPin(previous);
       return;
     }
     if (previous) previous.remove();
@@ -573,11 +596,16 @@ document.addEventListener("DOMContentLoaded", () => {
     spinner.setAttribute("aria-hidden", "true");
     pin.append(label, spinner);
     root.appendChild(pin);
-    const pinHeight = pin.offsetHeight;
-    pin.style.top = Math.max(0, root.scrollTop + (side === "bottom" ? root.clientHeight - pinHeight : 0)) + "px";
+    positionPin(pin);
     pin.addEventListener("click", () => {
-      const targetTop = details.offsetTop - Math.max(0, (root.clientHeight - summary.offsetHeight) / 2);
-      root.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+      const currentScrollerRect = scroller.getBoundingClientRect();
+      const currentFilterRect = filterRow.getBoundingClientRect();
+      const currentViewportTop = Math.max(currentScrollerRect.top, currentFilterRect.bottom);
+      const currentViewportBottom = currentScrollerRect.bottom;
+      const currentSummaryRect = summary.getBoundingClientRect();
+      const availableHeight = Math.max(0, currentViewportBottom - currentViewportTop);
+      const centeredTop = currentViewportTop + Math.max(0, (availableHeight - currentSummaryRect.height) / 2);
+      scroller.scrollTo({ top: Math.max(0, scroller.scrollTop + currentSummaryRect.top - centeredTop), behavior: "smooth" });
       details.open = true;
     });
   }
@@ -597,6 +625,20 @@ document.addEventListener("DOMContentLoaded", () => {
       callback(error ? { ok: false, error: error.message } : (response || { ok: false, error: t("noBackgroundResponse") }));
     });
   }
+  function openAndroidSavePage(token) {
+    const url = chrome.runtime.getURL("download.html") + "?token=" + encodeURIComponent(token);
+    chrome.tabs.create({ url, active: true }, tab => {
+      const error = chrome.runtime.lastError;
+      if (error || !tab || !Number.isInteger(tab.id)) {
+        setStatus(t("downloadFailed", error ? error.message : t("browserDownloadFailed")), true);
+        return;
+      }
+      chrome.tabs.update(tab.id, { active: true }, () => {
+        const activateError = chrome.runtime.lastError;
+        if (activateError) setStatus(t("androidDownloadOpenedBackground"));
+      });
+    });
+  }
   function restoreHlsDownloadStates() {
     sendRuntimeMessage({ Message: "getHlsDownloadJobs" }, response => {
       if (!response.ok || !Array.isArray(response.jobs)) return;
@@ -607,7 +649,8 @@ document.addEventListener("DOMContentLoaded", () => {
           jobId: job.jobId,
           message: job.message || "",
           completed: job.completed || 0,
-          total: job.total || 0
+          total: job.total || 0,
+          downloadToken: job.downloadToken || ""
         });
       });
       refreshAllHlsDownloadPanels();
@@ -1052,7 +1095,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#resetShortcuts").addEventListener("click", () => { const keyBindings = cloneDefaults().keyBindings; settings.keyBindings = keyBindings; renderShortcuts(); save({ keyBindings }, t("shortcutsReset")); });
   $("#resetGeneral").addEventListener("click", () => { const defaults = cloneDefaults(); const patch = { startHidden: defaults.startHidden, rememberSpeed: defaults.rememberSpeed, forceLastSavedSpeed: defaults.forceLastSavedSpeed, audioBoolean: defaults.audioBoolean, controllerOpacity: defaults.controllerOpacity }; settings = { ...settings, ...patch }; renderGeneral(); save(patch, t("playbackReset")); });
   $("#captureFilter").addEventListener("input", renderCaptureList);
-  $("#captureList").addEventListener("scroll", updatePinnedDownloadItem, { passive: true });
+  $(".content").addEventListener("scroll", updatePinnedDownloadItem, { passive: true });
   $("#captureSort").addEventListener("click", () => {
     const nextMode = { default: "name", name: "size", size: "default" };
     const labels = { default: t("sortDefault"), name: t("sortName"), size: t("sortSize") };
@@ -1113,23 +1156,46 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function startDirectDownload(item, index) {
     setHlsDownloadState(item.url, { state: "starting", message: t("creatingDownload") }, true);
+    const referer = String(item.referer || item.initiator || "");
+    if (/Android/i.test(navigator.userAgent || "")) {
+      sendRuntimeMessage({
+        Message: "startAndroidDirectDownload",
+        url: item.url,
+        referer,
+        fileName: captureFileName(item, index)
+      }, response => {
+        const error = response && response.ok ? "" : ((response && response.error) || t("browserDownloadFailed"));
+        const message = error ? t("downloadFailed", error) : t(response.activated ? "androidDownloadOpened" : "androidDownloadOpenedBackground");
+        setHlsDownloadState(item.url, { state: error ? "error" : "complete", message }, true);
+        setStatus(message, Boolean(error));
+      });
+      return;
+    }
     const downloadOptions = {
       url: item.url,
       filename: captureFileName(item, index),
       saveAs: false
     };
-    const referer = String(item.referer || item.initiator || "");
     if (/^https?:\/\//i.test(referer)) {
       downloadOptions.headers = [{ name: "Referer", value: referer }];
     }
-    chrome.downloads.download(downloadOptions, () => {
-      const error = chrome.runtime.lastError;
-      const message = error
-        ? t("downloadFailed", error.message)
-        : t(downloadOptions.headers ? "downloadWithReferer" : "downloadStarted");
-      setHlsDownloadState(item.url, { state: error ? "error" : "complete", message }, true);
-      setStatus(message, Boolean(error));
-    });
+    const beginDownload = options => {
+      chrome.downloads.download(options, () => {
+        const error = chrome.runtime.lastError;
+        if (error && options.headers) {
+          const fallbackOptions = { ...options };
+          delete fallbackOptions.headers;
+          beginDownload(fallbackOptions);
+          return;
+        }
+        const message = error
+          ? t("downloadFailed", error.message)
+          : t(options.headers ? "downloadWithReferer" : "downloadStarted");
+        setHlsDownloadState(item.url, { state: error ? "error" : "complete", message }, true);
+        setStatus(message, Boolean(error));
+      });
+    };
+    beginDownload(downloadOptions);
   }
   function prepareItemDownload(item, index) {
     const state = hlsDownloadStates.get(item.url);
@@ -1175,6 +1241,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   $("#captureList").addEventListener("pointerdown", cancelHlsDownload);
   $("#captureList").addEventListener("click", async (event) => {
+    const androidDownload = event.target.closest("[data-android-download]");
+    if (androidDownload) {
+      event.preventDefault();
+      event.stopPropagation();
+      openAndroidSavePage(androidDownload.dataset.androidDownload);
+      return;
+    }
     if (event.target.closest("[data-cancel-hls]")) {
       event.preventDefault();
       event.stopPropagation();
@@ -1297,7 +1370,7 @@ document.addEventListener("DOMContentLoaded", () => {
   chrome.runtime.onMessage.addListener((message) => {
     if (message && message.Message === "hlsDownloadProgress" && message.sourceUrl) {
       const previous = hlsDownloadStates.get(message.sourceUrl) || {};
-      const next = { ...previous, state: message.state, jobId: message.jobId, message: message.message || "", completed: message.completed || 0, total: message.total || 0 };
+      const next = { ...previous, state: message.state, jobId: message.jobId, message: message.message || "", completed: message.completed || 0, total: message.total || 0, downloadToken: message.downloadToken || "" };
       setHlsDownloadState(message.sourceUrl, next, false);
       if (message.state === "complete") setStatus(message.message || t("completeMp4Started"));
       if (message.state === "error") setStatus(message.message || t("m3u8DownloadFailed"), true);

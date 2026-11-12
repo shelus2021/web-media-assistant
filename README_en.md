@@ -1,14 +1,16 @@
-# Web Media Assistant
+# Media Assistant
 
 [中文](README.md)
 
-A Firefox media toolbox with three independently controlled features:
+A Firefox media toolbox for both desktop and mobile, with three independently controlled features:
 
 - Playback controls: speed, seeking shortcuts, and an on-page controller.
-- Image preview: enlarge existing page images and animations on hover, including `srcset`, backgrounds, direct image links, and safe preview rules.
+- Image preview: quickly enlarge or pin page images and animations, including `srcset`, backgrounds, direct image links, and safe URL preview rules.
 - Media finder: find, preview, and download media loaded by the current page.
 
-Image preview keeps the Imagus 0.9.8.74 viewer and interactions, with generic image detection as its base. Preview rules use safe URL templates: `*` preserves source text, `%s` marks a replaced part, and every `%s` has one `[]` candidate group. When a rule matches, the pinned-view caption shows `[orig]` or `[value1][value2]`; clicking a group cycles that group independently. Rules run no scripts, fetch no resolver pages, and cannot change the original image host. Default rules cover explicit size-bearing URLs used by X / Twitter, TMDb, Pinterest, SoundCloud, Apple media images, Squarespace, Gravatar, Discord, YouTube, eBay, Google image CDN, Unsplash, GitHub avatars, Flickr, ArtStation, and Twitch avatars. Video preview is not included.
+Firefox desktop and Firefox for Android 142.0 or later are supported. Mouse input keeps the existing hover, right-click, activation settings, and keyboard shortcuts, while touch or pen input always uses the mobile gestures even when a mouse is also connected. On Android touchscreens, press and hold an image to preview it; tap the enlarged image or elsewhere on the page to close an unpinned preview, or tap the enlarged image with two fingers at once to pin it. A pinned image can be panned with one finger and pinched or rotated with two; rotation snaps near 0°, 90°, 180°, and 270°. The playback controller can be dragged by holding anywhere on it with either touch or mouse; on mobile, tapping the speed number switches between number-only and expanded-button views. Android downloads use an extension file-save page that hands the prepared file to the browser or system share sheet. HLS downloads use bounded segment concurrency, but downloads and large-file merging can still use significant memory, so practical limits depend on the device.
+
+Image preview is based on parts of the Imagus 0.9.8.74 codebase, but its viewer, rule management, and mouse and touch interactions have been reworked for this extension. Desktop users can preview on hover, pin with right-click, and use mouse controls. Mobile users can press and hold to preview, tap to close, tap with two fingers to pin, then drag, pinch, or rotate a pinned image. Preview rules use restricted URL templates that switch available image variants only within the original image host; they run no scripts and fetch no resolver pages. A practical rule set is included and can be reviewed, enabled, disabled, reordered, or extended in settings. Video preview is not included.
 
 ## Download
 

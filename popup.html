@@ -2,7 +2,8 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <title data-i18n="extensionName">网页媒体助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title data-i18n="extensionName">媒体助手</title>
     <link rel="stylesheet" href="popup.css" />
     <script src="js/i18n.js"></script>
     <script src="js/defaults.js"></script>
@@ -10,7 +11,7 @@
   </head>
   <body>
     <header class="app-header">
-      <div><h1 data-i18n="extensionName">网页媒体助手</h1><span id="status" class="status"></span></div>
+      <div><h1 data-i18n="extensionName">媒体助手</h1><span id="status" class="status"></span></div>
     </header>
     <main class="content">
       <div id="mainMenu" class="menu-view">
@@ -61,14 +62,15 @@
 
       <section id="imagePreviewPanel" class="subpage hidden">
           <div class="subpage-header feature-header"><button type="button" class="back-button" data-back="mainMenu" data-i18n="back">返回</button><span><b data-i18n="imagePreviewTitle">图片预览</b><small data-i18n="imagePreviewSubtitle">悬停查看原图与动图</small></span><label class="feature-switch" title="启用或禁用图片预览" data-i18n-title="toggleImagePreview"><input id="imagePreviewEnabled" type="checkbox" /><span class="feature-slider"></span></label></div>
-        <button type="button" class="menu-card" data-page="imagePreviewSettingsPanel"><span class="card-icon">⚙</span><span><b data-i18n="imagePreviewSettingsTitle">预览选项</b><small data-i18n="imagePreviewSettingsSubtitle">触发、加载、标题、贴图与外观</small></span></button>
+        <p class="hint touch-only" data-i18n="touchPreviewHint">触摸长按预览，双指贴图；贴图后可单指移动、双指缩放或旋转。</p>
+        <button type="button" class="menu-card" data-page="imagePreviewSettingsPanel"><span class="card-icon">⚙</span><span><b data-i18n="imagePreviewSettingsTitle">预览选项</b><small data-i18n="imagePreviewSettingsSubtitle">鼠标触发、通用加载、标题、贴图与外观</small></span></button>
         <button type="button" class="menu-card" data-page="imagePreviewRulesPanel"><span class="card-icon">↗</span><span><b data-i18n="imagePreviewRulesTitle">预览规则</b><small data-i18n="imagePreviewRulesSubtitle">通过 URL 模板依次尝试更高清的地址</small></span></button>
         <button type="button" class="menu-card" data-page="imagePreviewShortcutsPanel"><span class="card-icon">⌨</span><span><b data-i18n="imagePreviewShortcutsTitle">预览快捷键</b><small data-i18n="imagePreviewShortcutsSubtitle">缩放、旋转、适配和打开原图</small></span></button>
       </section>
 
       <section id="imagePreviewSettingsPanel" class="subpage hidden">
-        <div class="subpage-header"><button type="button" class="back-button" data-back="imagePreviewPanel" data-i18n="back">返回</button><span><b data-i18n="imagePreviewSettingsTitle">预览选项</b><small data-i18n="imagePreviewSettingsSubtitle">触发、加载、标题、贴图与外观</small></span></div>
-        <div class="settings-group"><h3 data-i18n="imageTriggerGroup">触发与加载</h3>
+        <div class="subpage-header"><button type="button" class="back-button" data-back="imagePreviewPanel" data-i18n="back">返回</button><span><b data-i18n="imagePreviewSettingsTitle">预览选项</b><small data-i18n="imagePreviewSettingsSubtitle">鼠标触发、通用加载、标题、贴图与外观</small></span></div>
+        <div class="settings-group"><h3><span data-i18n="imageTriggerGroup">触发</span><span class="settings-group-title-note" data-i18n="touchTriggerSummary">（触摸时长按预览、双指点击贴图）</span></h3>
           <div class="field activation-combination"><span id="imageActivationLead" data-i18n="hold">按住</span><select id="imageActivationKey" aria-label="指定按键" data-i18n-aria-label="imageActivationKey" data-imagus-section="hz" data-imagus-key="actTrigger"><option value="m2" data-i18n="rightMouseButton">鼠标右键</option><option value="ctrl">Ctrl</option><option value="shift">Shift</option><option value="alt">Alt</option></select><select id="imageActivationMode" aria-label="启用方式" data-i18n-aria-label="imageActivationMode" data-imagus-section="hz" data-imagus-key="deactivate" data-imagus-type="number"><option value="0" data-i18n="enableAction">启用</option><option value="1" data-i18n="disableAction">禁用</option></select></div>
           <label class="field activation-delay-setting hidden"><span data-i18n="imageDelay">显示延迟（毫秒）</span><input data-imagus-section="hz" data-imagus-key="delay" data-imagus-type="number" type="number" min="0" max="5000" step="50" /></label>
           <label class="setting activation-delay-setting hidden"><span data-i18n="imageDelayOnIdle">鼠标移动时重新计时</span><input data-imagus-section="hz" data-imagus-key="delayOnIdle" type="checkbox" /></label>
@@ -83,12 +85,12 @@
           <label class="field"><span data-i18n="imageClosePinned">关闭贴图</span><select data-imagus-section="hz" data-imagus-key="fzCloseClick" data-imagus-type="number"><option value="1" data-i18n="click">单击</option><option value="2" data-i18n="doubleClick">双击</option></select></label>
         </div>
         <div class="settings-group"><h3 data-i18n="imageCaptionGroup">标题</h3>
-          <label class="field"><span data-i18n="imageCaptionStyle">标题样式</span><select data-imagus-section="hz" data-imagus-key="capStyle" data-imagus-type="number"><option value="0" data-i18n="dark">深色</option><option value="1" data-i18n="light">浅色</option></select></label>
+          <label class="field"><span data-i18n="imageCaptionStyle">标题样式</span><select data-imagus-section="hz" data-imagus-key="capStyle" data-imagus-type="number"><option value="2" data-i18n="automaticTheme">自动</option><option value="0" data-i18n="dark">深色</option><option value="1" data-i18n="light">浅色</option></select></label>
           <label class="field"><span data-i18n="imageCaptionPosition">标题位置</span><select data-imagus-section="hz" data-imagus-key="capPos" data-imagus-type="number"><option value="0" data-i18n="top">顶部</option><option value="1" data-i18n="bottom">底部</option></select></label>
-          <label class="setting"><span data-i18n="imageCaptionText">显示标题文字</span><input data-imagus-section="hz" data-imagus-key="capText" type="checkbox" /></label>
-          <label class="setting"><span data-i18n="imageLinkAsCaption">链接文字作为标题</span><input data-imagus-section="hz" data-imagus-key="capLinkText" type="checkbox" /></label>
           <label class="setting"><span data-i18n="imageDimensions">显示图片尺寸</span><input data-imagus-section="hz" data-imagus-key="capWH" type="checkbox" /></label>
           <label class="setting"><span data-i18n="imageRuleCandidate">显示规则候选值</span><input data-imagus-section="hz" data-imagus-key="capQuality" type="checkbox" /></label>
+          <label class="setting"><span data-i18n="imageCaptionText">显示标题文字</span><input data-imagus-section="hz" data-imagus-key="capText" type="checkbox" /></label>
+          <label class="setting"><span data-i18n="imageLinkAsCaption">链接文字作为标题</span><input data-imagus-section="hz" data-imagus-key="capLinkText" type="checkbox" /></label>
         </div>
         <button type="button" id="saveImagePreviewSettings" class="primary" data-i18n="saveImagePreviewSettings">保存预览设置</button><button type="button" id="resetImagePreviewSettings" class="reset-button" data-i18n="resetImagePreviewSettings">恢复默认设置</button>
       </section>

@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "Web Media Assistant"
+    "message": "Media Assistant"
   },
   "extensionShortName": {
     "message": "Media Assistant"
@@ -9,7 +9,7 @@
     "message": "Playback controls, media discovery, and hover image previews"
   },
   "browserActionTitle": {
-    "message": "Web Media Assistant\n0 media resources found on this page"
+    "message": "Media Assistant\n0 media resources found on this page"
   },
   "playbackControlTitle": {
     "message": "Playback controls"
@@ -29,6 +29,9 @@
   "imagePreviewSubtitle": {
     "message": "Hover to preview full images and animations"
   },
+  "touchPreviewHint": {
+    "message": "On a touchscreen, press and hold an image to preview it, tap the enlarged image to close an unpinned preview, or tap it with two fingers at once to pin it, then pan with one finger and pinch or rotate with two. Rotation snaps near the four cardinal orientations."
+  },
   "toggleImagePreview": {
     "message": "Enable or disable image previews"
   },
@@ -39,7 +42,7 @@
     "message": "Preview options"
   },
   "imagePreviewSettingsSubtitle": {
-    "message": "Activation, loading, captions, pinning, and appearance"
+    "message": "Mouse activation, shared loading, captions, pinning, and appearance"
   },
   "imagePreviewRulesTitle": { "message": "Preview rules" },
   "imagePreviewRulesSubtitle": { "message": "Use URL templates to try higher-resolution addresses in order" },
@@ -76,7 +79,10 @@
     "message": "Zoom, rotate, and pin images"
   },
   "imageTriggerGroup": {
-    "message": "Activation and loading"
+    "message": "Activation"
+  },
+  "touchTriggerSummary": {
+    "message": " (Touch: hold to preview, two-finger tap to pin)"
   },
   "hold": {
     "message": "Hold"
@@ -137,6 +143,9 @@
   },
   "imageCaptionStyle": {
     "message": "Caption style"
+  },
+  "automaticTheme": {
+    "message": "Automatic"
   },
   "dark": {
     "message": "Dark"
@@ -619,7 +628,7 @@
     "message": "M3U8 download failed"
   },
   "browserTitleOther": {
-    "message": "Web Media Assistant\nFound $1 media resources on other pages",
+    "message": "Media Assistant\nFound $1 media resources on other pages",
     "placeholders": {
       "arg1": {
         "content": "$1"
@@ -627,7 +636,7 @@
     }
   },
   "browserTitleCurrent": {
-    "message": "Web Media Assistant\nFound $1 media resources on this page",
+    "message": "Media Assistant\nFound $1 media resources on this page",
     "placeholders": {
       "arg1": {
         "content": "$1"
@@ -648,6 +657,9 @@
   },
   "ariaAdvance": {
     "message": "Forward"
+  },
+  "ariaToggleControls": {
+    "message": "Collapse or expand playback buttons"
   },
   "invalidM3u8": {
     "message": "This URL is not a valid M3U8 playlist"
@@ -811,6 +823,42 @@
   },
   "browserDownloadFailed": {
     "message": "The browser could not create the download"
+  },
+  "androidDownloadTitle": {
+    "message": "Media download"
+  },
+  "androidDownloadPreparing": {
+    "message": "Preparing the file. Keep this page open."
+  },
+  "androidDownloadReady": {
+    "message": "The file is ready. Tap Save file. If the browser still does not save it, use System share or Open file."
+  },
+  "androidDownloadSave": {
+    "message": "Save file"
+  },
+  "androidDownloadShare": {
+    "message": "System share"
+  },
+  "androidDownloadOpen": {
+    "message": "Open file"
+  },
+  "androidDownloadStarted": {
+    "message": "The file was handed to the browser for download."
+  },
+  "androidDownloadOpened": {
+    "message": "Opened and switched to the Android file-save page"
+  },
+  "androidDownloadOpenedBackground": {
+    "message": "The file-save page opened in a new tab. Switch to that tab manually."
+  },
+  "androidDownloadOpenPage": {
+    "message": "Open file-save page"
+  },
+  "androidDownloadFailed": {
+    "message": "The file could not be prepared."
+  },
+  "androidDownloadExpired": {
+    "message": "This download expired. Return to the original page and try again."
   },
   "downloadingLabel": {
     "message": "Downloading and muxing $LABEL$$COMPLETED$/$TOTAL$",

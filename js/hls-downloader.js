@@ -6,11 +6,13 @@
     const jobs = new Map();
     const jobStates = new Map();
     const requestReferers = new Map();
+    const androidDownloads = new Map();
     const popupPanels = new Set(["mainMenu", "playbackPanel", "shortcutsPanel", "generalPanel", "capturePanel", "imagePreviewPanel", "imagePreviewSettingsPanel", "imagePreviewRulesPanel", "imagePreviewShortcutsPanel"]);
     let popupPanel = "mainMenu";
     let popupClosedAt = 0;
     let popupConnectionCount = 0;
     let nextJobId = 1;
+    let nextAndroidDownloadId = 1;
     let mp4boxLoader;
 
     function parseAttributes(value) {
@@ -105,6 +107,7 @@
         if (!lines.includes("#EXT-X-ENDLIST")) throw new Error(t("vodOnly"));
         let mediaSequence = 0;
         let key = null;
+        let keyGeneration = 0;
         let map = null;
         let pendingRange = null;
         let pendingDuration = 0;
@@ -125,13 +128,18 @@
                 if (method !== "AES-128") throw new Error(t("unsupportedEncryption", method || t("unknown")));
                 if (attrs.KEYFORMAT && attrs.KEYFORMAT !== "identity") throw new Error(t("drmUnsupported"));
                 if (!attrs.URI) throw new Error(t("missingKeyUrl"));
-                key = { url: new URL(attrs.URI, baseUrl).href, iv: attrs.IV || "" };
+                keyGeneration++;
+                key = { url: new URL(attrs.URI, baseUrl).href, iv: attrs.IV || "", cacheId: keyGeneration };
                 continue;
             }
             if (line.startsWith("#EXT-X-MAP:")) {
                 const attrs = parseAttributes(line.slice(line.indexOf(":") + 1));
                 if (!attrs.URI) throw new Error(t("missingInitUrl"));
-                map = { url: new URL(attrs.URI, baseUrl).href, range: attrs.BYTERANGE ? parseByteRange(attrs.BYTERANGE) : null };
+                map = {
+                    url: new URL(attrs.URI, baseUrl).href,
+                    range: attrs.BYTERANGE ? parseByteRange(attrs.BYTERANGE) : null,
+                    key: key ? { ...key } : null
+                };
                 continue;
             }
             if (line.startsWith("#EXT-X-BYTERANGE:")) {
@@ -162,6 +170,7 @@
                 url,
                 range,
                 key: key ? { ...key } : null,
+                map: map ? { ...map, range: map.range ? { ...map.range } : null, key: map.key ? { ...map.key } : null } : null,
                 sequence: mediaSequence + segments.length,
                 discontinuity,
                 duration: pendingDuration,
@@ -174,7 +183,7 @@
         }
         if (!segments.length) throw new Error(t("noSegments"));
         if (segments.length > 10000) throw new Error(t("tooManySegments"));
-        return { segments, map };
+        return { segments, map: segments.find(segment => segment.map)?.map || null };
     }
 
     function rememberReferer(url, referer) {
@@ -246,6 +255,33 @@
         });
     }
 
+    function createSegmentPrefetcher(job, segments, referer) {
+        const mobile = /Android/i.test(navigator.userAgent || "");
+        const cores = Number(navigator.hardwareConcurrency) || 4;
+        const concurrency = Math.max(2, Math.min(mobile ? 3 : 6, Math.ceil(cores / 2)));
+        const pending = new Map();
+        let nextIndex = 0;
+
+        const fill = () => {
+            while (nextIndex < segments.length && pending.size < concurrency) {
+                const index = nextIndex++;
+                const item = segments[index];
+                const result = fetchBytes(item.url, referer, job.controller.signal, item.range)
+                    .then(bytes => ({ bytes }), error => ({ error }));
+                pending.set(index, result);
+            }
+        };
+
+        fill();
+        return async index => {
+            const result = await pending.get(index);
+            pending.delete(index);
+            fill();
+            if (result.error) throw result.error;
+            return result.bytes;
+        };
+    }
+
     function makeIv(value, sequence) {
         if (value) {
             let hex = value.replace(/^0x/i, "");
@@ -264,12 +300,13 @@
 
     async function decryptSegment(bytes, keyInfo, referer, signal, keyCache) {
         if (!keyInfo) return bytes;
-        let key = keyCache.get(keyInfo.url);
+        const cacheKey = keyInfo.url + "#" + (keyInfo.cacheId || "legacy");
+        let key = keyCache.get(cacheKey);
         if (!key) {
             const rawKey = await fetchBytes(keyInfo.url, referer, signal);
             if (rawKey.byteLength !== 16) throw new Error(t("invalidKeyLength"));
             key = await crypto.subtle.importKey("raw", rawKey, { name: "AES-CBC" }, false, ["decrypt"]);
-            keyCache.set(keyInfo.url, key);
+            keyCache.set(cacheKey, key);
         }
         try {
             const decrypted = await crypto.subtle.decrypt({ name: "AES-CBC", iv: makeIv(keyInfo.iv, keyInfo.sequence) }, key, bytes);
@@ -288,6 +325,8 @@
             completed,
             total,
             message,
+            downloadToken: job.androidDownloadToken || "",
+            downloadActivated: job.androidDownloadActivated !== false,
             updatedAt: Date.now()
         };
         job.progress = progress;
@@ -444,11 +483,12 @@
         let hasAudio = false;
         let hasVideo = false;
         const session = createTransmuxSession(job.controller.signal);
+        const takeSegment = createSegmentPrefetcher(job, playlist.segments, referer);
         try {
             for (let index = 0; index < playlist.segments.length; index++) {
                 const item = playlist.segments[index];
                 reportTrackActivity(job, progress, index, playlist.segments.length, "fetchingSegmentLabel");
-                let bytes = await fetchBytes(item.url, referer, job.controller.signal, item.range);
+                let bytes = await takeSegment(index);
                 if (item.key) bytes = await decryptSegment(bytes, { ...item.key, sequence: item.sequence }, referer, job.controller.signal, keyCache);
                 reportTrackActivity(job, progress, index, playlist.segments.length, "muxingSegmentLabel");
                 const segments = await session.process(bytes, item.discontinuity);
@@ -485,20 +525,43 @@
         return false;
     }
 
+    function mapSignature(map) {
+        if (!map) return "";
+        const range = map.range ? map.range.offset + ":" + map.range.length : "";
+        const key = map.key ? map.key.url + ":" + (map.key.cacheId || "") + ":" + map.key.iv : "";
+        return map.url + "|" + range + "|" + key;
+    }
+
+    async function fetchMapBytes(map, sequence, referer, signal, keyCache) {
+        let bytes = await fetchBytes(map.url, referer, signal, map.range);
+        if (map.key) bytes = await decryptSegment(bytes, { ...map.key, sequence }, referer, signal, keyCache);
+        return bytes;
+    }
+
     async function combineFmp4(job, playlist, referer, progress = {}) {
         const chunks = [];
         const keyCache = new Map();
-        if (playlist.map) chunks.push(await fetchBytes(playlist.map.url, referer, job.controller.signal, playlist.map.range));
+        const takeSegment = createSegmentPrefetcher(job, playlist.segments, referer);
+        let currentMap = "";
+        let hasAudio = false;
+        let hasVideo = false;
         for (let index = 0; index < playlist.segments.length; index++) {
             const item = playlist.segments[index];
+            const nextMap = mapSignature(item.map);
+            if (nextMap && nextMap !== currentMap) {
+                const init = await fetchMapBytes(item.map, item.sequence, referer, job.controller.signal, keyCache);
+                chunks.push(init);
+                hasAudio = hasAudio || containsAscii(init, "soun");
+                hasVideo = hasVideo || containsAscii(init, "vide");
+                currentMap = nextMap;
+            }
             reportTrackActivity(job, progress, index, playlist.segments.length, "fetchingSegmentLabel");
-            let bytes = await fetchBytes(item.url, referer, job.controller.signal, item.range);
+            let bytes = await takeSegment(index);
             if (item.key) bytes = await decryptSegment(bytes, { ...item.key, sequence: item.sequence }, referer, job.controller.signal, keyCache);
             chunks.push(bytes);
             reportTrackProgress(job, progress, index, playlist.segments.length);
         }
-        const init = chunks[0] || new Uint8Array();
-        return { chunks, hasAudio: containsAscii(init, "soun"), hasVideo: containsAscii(init, "vide") };
+        return { chunks, hasAudio, hasVideo };
     }
 
     function downloadTrack(job, playlist, referer, progress) {
@@ -513,11 +576,12 @@
         let hasAudio = false;
         let hasVideo = false;
         const session = createTransmuxSession(job.controller.signal);
+        const takeSegment = createSegmentPrefetcher(job, playlist.segments, referer);
         try {
             for (let index = 0; index < playlist.segments.length; index++) {
                 const item = playlist.segments[index];
                 reportTrackActivity(job, progress, index, playlist.segments.length, "fetchingSegmentLabel");
-                let bytes = await fetchBytes(item.url, referer, job.controller.signal, item.range);
+                let bytes = await takeSegment(index);
                 if (item.key) bytes = await decryptSegment(bytes, { ...item.key, sequence: item.sequence }, referer, job.controller.signal, keyCache);
                 reportTrackActivity(job, progress, index, playlist.segments.length, "muxingSegmentLabel");
                 const segments = await session.process(bytes, item.discontinuity);
@@ -544,20 +608,27 @@
 
     async function combineFmp4ToFile(job, playlist, referer, output, progress = {}) {
         const keyCache = new Map();
-        let init = new Uint8Array();
-        if (playlist.map) {
-            init = await fetchBytes(playlist.map.url, referer, job.controller.signal, playlist.map.range);
-            await output.write(init);
-        }
+        const takeSegment = createSegmentPrefetcher(job, playlist.segments, referer);
+        let currentMap = "";
+        let hasAudio = false;
+        let hasVideo = false;
         for (let index = 0; index < playlist.segments.length; index++) {
             const item = playlist.segments[index];
+            const nextMap = mapSignature(item.map);
+            if (nextMap && nextMap !== currentMap) {
+                const init = await fetchMapBytes(item.map, item.sequence, referer, job.controller.signal, keyCache);
+                await output.write(init);
+                hasAudio = hasAudio || containsAscii(init, "soun");
+                hasVideo = hasVideo || containsAscii(init, "vide");
+                currentMap = nextMap;
+            }
             reportTrackActivity(job, progress, index, playlist.segments.length, "fetchingSegmentLabel");
-            let bytes = await fetchBytes(item.url, referer, job.controller.signal, item.range);
+            let bytes = await takeSegment(index);
             if (item.key) bytes = await decryptSegment(bytes, { ...item.key, sequence: item.sequence }, referer, job.controller.signal, keyCache);
             await output.write(bytes);
             reportTrackProgress(job, progress, index, playlist.segments.length);
         }
-        return { hasAudio: containsAscii(init, "soun"), hasVideo: containsAscii(init, "vide") };
+        return { hasAudio, hasVideo };
     }
 
     function downloadTrackToFile(job, playlist, referer, output, progress) {
@@ -823,7 +894,67 @@
         return (name || "video") + ".mp4";
     }
 
+    function isAndroidBrowser() {
+        return /Android/i.test(navigator.userAgent || "");
+    }
+
+    function releaseAndroidDownload(token) {
+        const record = androidDownloads.get(token);
+        if (!record) return;
+        androidDownloads.delete(token);
+        clearTimeout(record.timer);
+        if (record.blobUrl) URL.revokeObjectURL(record.blobUrl);
+        Promise.resolve(record.cleanup && record.cleanup()).catch(() => {});
+    }
+
+    function registerAndroidDownload(record) {
+        const token = "android-" + Date.now() + "-" + nextAndroidDownloadId++;
+        record.timer = setTimeout(() => releaseAndroidDownload(token), 30 * 60 * 1000);
+        androidDownloads.set(token, record);
+        return token;
+    }
+
+    function openAndroidDownload(record) {
+        const token = registerAndroidDownload(record);
+        return new Promise((resolve, reject) => {
+            const url = chrome.runtime.getURL("download.html") + "?token=" + encodeURIComponent(token);
+            chrome.tabs.create({ url, active: true }, tab => {
+                const createError = chrome.runtime.lastError;
+                if (createError || !tab || !Number.isInteger(tab.id)) {
+                    releaseAndroidDownload(token);
+                    reject(new Error(createError ? createError.message : t("browserDownloadFailed")));
+                    return;
+                }
+                chrome.tabs.update(tab.id, { active: true }, () => {
+                    const activateError = chrome.runtime.lastError;
+                    resolve({ token, activated: !activateError });
+                });
+            });
+        });
+    }
+
+    async function getAndroidDownload(token) {
+        const record = androidDownloads.get(token);
+        if (!record) throw new Error(t("androidDownloadExpired"));
+        if (!record.blobUrl) {
+            const blob = record.blob || await withRequestTimeout(null, async signal => {
+                const response = await fetchResponse(record.sourceUrl, record.referer, signal);
+                return response.blob();
+            });
+            record.blobUrl = URL.createObjectURL(blob);
+            record.blob = null;
+        }
+        return { url: record.blobUrl, fileName: record.fileName };
+    }
+
     function saveDownload(job, blob, cleanup) {
+        if (isAndroidBrowser()) {
+            return openAndroidDownload({ blob, blobUrl: "", fileName: mp4FileName(job.fileName), cleanup }).then(result => {
+                job.androidDownloadToken = result.token;
+                job.androidDownloadActivated = result.activated;
+                return result.token;
+            });
+        }
         return new Promise((resolve, reject) => {
             const blobUrl = URL.createObjectURL(blob);
             chrome.downloads.download({ url: blobUrl, filename: mp4FileName(job.fileName), saveAs: false }, downloadId => {
@@ -886,13 +1017,15 @@
                 await saveDownload(job, file, () => temporaryFile.remove());
                 downloadOwnsTemporaryFile = true;
             }
-            notify(job, "complete", total, total, audioPlaylistUrl
-                ? t("completeWithAudio")
-                : t(silent ? "silentMp4Started" : "completeMp4Started"));
+            const completeMessage = job.androidDownloadToken
+                ? t(job.androidDownloadActivated === false ? "androidDownloadOpenedBackground" : "androidDownloadOpened")
+                : (audioPlaylistUrl ? t("completeWithAudio") : t(silent ? "silentMp4Started" : "completeMp4Started"));
+            notify(job, "complete", total, total, completeMessage);
         } catch (error) {
             const cancelled = error && error.name === "AbortError";
             notify(job, cancelled ? "cancelled" : "error", 0, 0, cancelled ? t("downloadCancelled") : (error.message || t("m3u8DownloadFailed")));
         } finally {
+            job.controller.abort();
             if (temporaryFile && !downloadOwnsTemporaryFile) await temporaryFile.remove();
             jobs.delete(job.id);
         }
@@ -901,6 +1034,7 @@
     cleanupStaleTemporaryFiles();
 
     chrome.webRequest.onBeforeSendHeaders.addListener(data => {
+        if (data.tabId !== -1) return;
         const entry = requestReferers.get(data.url.split("#")[0]);
         if (!entry || entry.expires < Date.now()) return;
         const headers = (data.requestHeaders || []).filter(header => !["referer", "origin"].includes(header.name.toLowerCase()));
@@ -920,6 +1054,27 @@
 
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         if (!message || !message.Message) return false;
+        if (message.Message === "startAndroidDirectDownload") {
+            openAndroidDownload({
+                sourceUrl: message.url,
+                referer: message.referer || "",
+                fileName: String(message.fileName || "media"),
+                blobUrl: ""
+            }).then(result => sendResponse({ ok: true, ...result }))
+                .catch(error => sendResponse({ ok: false, error: error.message || t("browserDownloadFailed") }));
+            return true;
+        }
+        if (message.Message === "getAndroidDownload") {
+            getAndroidDownload(message.token)
+                .then(download => sendResponse({ ok: true, ...download }))
+                .catch(error => sendResponse({ ok: false, error: error.message || t("browserDownloadFailed") }));
+            return true;
+        }
+        if (message.Message === "releaseAndroidDownload") {
+            releaseAndroidDownload(message.token);
+            sendResponse({ ok: true });
+            return false;
+        }
         if (message.Message === "probeHls") {
             const controller = new AbortController();
             probeDownloadOptions(message.url, message.referer, controller.signal)

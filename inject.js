@@ -256,8 +256,11 @@ function defineVideoController() {
     target.addEventListener("mousedown", (this.handleActivate = function () {
       markActiveMedia(target);
     }), true);
+    target.addEventListener("pointerdown", (this.handlePointerActivate = function (event) {
+      if (event.pointerType !== "mouse") markActiveMedia(target);
+    }), true);
 
-    var observer = new MutationObserver((mutations) => {
+    this.observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
           mutation.type === "attributes" &&
@@ -274,16 +277,26 @@ function defineVideoController() {
         }
       });
     });
-    observer.observe(target, {
+    this.observer.observe(target, {
       attributeFilter: ["src", "currentSrc"]
     });
   };
 
   tc.videoController.prototype.remove = function () {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+    var shadowController = this.div && this.div.shadowRoot && this.div.shadowRoot.querySelector("#controller");
+    if (shadowController && shadowController.vcsShowTimer) {
+      clearTimeout(shadowController.vcsShowTimer);
+      shadowController.vcsShowTimer = null;
+    }
     this.div.remove();
     this.video.removeEventListener("play", this.handlePlay);
     this.video.removeEventListener("seeked", this.handleSeek);
     this.video.removeEventListener("mousedown", this.handleActivate, true);
+    this.video.removeEventListener("pointerdown", this.handlePointerActivate, true);
     if (tc.activeMedia === this.video) tc.activeMedia = null;
     delete this.video.vsc;
     let idx = tc.mediaElements.indexOf(this.video);
@@ -336,11 +349,60 @@ function defineVideoController() {
     });
     controller.append(draggable, controls);
     shadow.append(style, controller);
-    shadow.querySelector(".draggable").addEventListener(
-      "mousedown",
+    const touchControlsQuery = window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)");
+    if (touchControlsQuery && touchControlsQuery.matches) {
+      controller.classList.add("touch-collapsed");
+      draggable.setAttribute("role", "button");
+      draggable.setAttribute("tabindex", "0");
+      draggable.setAttribute("aria-expanded", "false");
+      draggable.setAttribute("aria-label", extensionMessage("ariaToggleControls"));
+      let touchCollapseTimer = null;
+      const clearTouchCollapseTimer = () => {
+        if (touchCollapseTimer !== null) {
+          clearTimeout(touchCollapseTimer);
+          touchCollapseTimer = null;
+        }
+      };
+      const scheduleTouchCollapse = () => {
+        clearTouchCollapseTimer();
+        if (controller.classList.contains("touch-collapsed")) return;
+        touchCollapseTimer = setTimeout(() => {
+          controller.classList.add("touch-collapsed");
+          draggable.setAttribute("aria-expanded", "false");
+          touchCollapseTimer = null;
+        }, 5000);
+      };
+      const toggleTouchControls = (e) => {
+        if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
+        if (e.type === "keydown") e.preventDefault();
+        const collapsed = !controller.classList.contains("touch-collapsed");
+        if (collapsed) {
+          controller.classList.add("touch-collapsed");
+          clearTouchCollapseTimer();
+        } else {
+          controller.style.visibility = "hidden";
+          controller.classList.remove("touch-collapsed");
+          updateControllerDirection(this.video, controller);
+          controller.style.visibility = "";
+          scheduleTouchCollapse();
+        }
+        draggable.setAttribute("aria-expanded", String(!collapsed));
+        e.stopPropagation();
+      };
+      draggable.addEventListener("click", toggleTouchControls, true);
+      draggable.addEventListener("keydown", toggleTouchControls, true);
+      controller.addEventListener("pointerdown", scheduleTouchCollapse, true);
+      controller.addEventListener("pointermove", (e) => {
+        if (e.pointerType !== "mouse" || e.buttons) scheduleTouchCollapse();
+      }, true);
+      controller.addEventListener("click", scheduleTouchCollapse, true);
+      controller.addEventListener("keydown", scheduleTouchCollapse, true);
+    }
+    controller.addEventListener(
+      "pointerdown",
       (e) => {
-        e.preventDefault();
-        runAction(e.target.dataset["action"], false, e);
+        if (e.isPrimary === false || (e.pointerType === "mouse" && e.button !== 0)) return;
+        runAction("drag", false, e);
         e.stopPropagation();
       },
       true
@@ -614,6 +676,7 @@ function initializeNow(document) {
   });
 
   function checkForVideo(node, parent, added) {
+    if (added && !tc.settings.enabled) return;
     // Only proceed with supposed removal if node is missing from DOM
     if (!added && document.body.contains(node)) {
       return;
@@ -637,7 +700,7 @@ function initializeNow(document) {
     }
   }
 
-  var observer = new MutationObserver(function (mutations) {
+  tc.mediaObserver = new MutationObserver(function (mutations) {
     // Process the DOM nodes lazily
     requestIdleCallback(
       (_) => {
@@ -675,7 +738,7 @@ function initializeNow(document) {
       { timeout: 1000 }
     );
   });
-  observer.observe(document, {
+  tc.mediaObserver.observe(document, {
     attributeFilter: ["aria-hidden"],
     childList: true,
     subtree: true
@@ -919,19 +982,44 @@ function jumpToMark(v) {
   }
 }
 
+function measureExpandedControllerWidth(controller) {
+  const collapsed = controller.classList.contains("touch-collapsed");
+  const below = controller.classList.contains("controls-below");
+  const visibility = controller.style.visibility;
+  controller.style.visibility = "hidden";
+  controller.classList.remove("touch-collapsed", "controls-below");
+  const width = controller.getBoundingClientRect().width;
+  controller.classList.toggle("touch-collapsed", collapsed);
+  controller.classList.toggle("controls-below", below);
+  controller.style.visibility = visibility;
+  return width;
+}
+
+function updateControllerDirection(video, controller) {
+  const controllerStyle = controller.ownerDocument.defaultView.getComputedStyle(controller);
+  const leftMargin = parseFloat(controllerStyle.marginLeft) || 0;
+  const left = parseFloat(controller.style.left) || 0;
+  const videoRight = Math.max(video.offsetLeft, 0) + video.offsetWidth;
+  controller.classList.toggle(
+    "controls-below",
+    left + leftMargin + measureExpandedControllerWidth(controller) > videoRight
+  );
+}
+
 function handleDrag(video, e) {
   const controller = video.vsc.div;
   const shadowController = controller.shadowRoot.querySelector("#controller");
   const dragDocument = video.ownerDocument;
   const dragWindow = dragDocument.defaultView;
-
-  video.classList.add("vcs-dragging");
-  shadowController.classList.add("dragging");
-  // Measure the expanded controls in their normal horizontal layout.
-  shadowController.classList.remove("controls-below");
+  const pointerDrag = e.type === "pointerdown";
+  const pointerId = pointerDrag ? e.pointerId : null;
+  const moveEventName = pointerDrag ? "pointermove" : "mousemove";
+  const endEventName = pointerDrag ? "pointerup" : "mouseup";
+  const cancelEventName = pointerDrag ? "pointercancel" : null;
 
   const initialMouseXY = [e.clientX, e.clientY];
   let didDrag = false;
+  let capturedPointer = false;
   const initialControllerXY = [
     parseInt(shadowController.style.left),
     parseInt(shadowController.style.top)
@@ -964,24 +1052,31 @@ function handleDrag(video, e) {
     minTop,
     videoBottom - collapsedHeight - topMargin
   );
-  const expandedWidth =
-    collapsedWidth +
-    6 +
-    Array.from(shadowController.querySelectorAll("#controls button")).reduce(
-      (width, button) => width + button.getBoundingClientRect().width,
-      0
-    );
+  const expandedWidth = measureExpandedControllerWidth(shadowController);
   shadowController.classList.toggle(
     "controls-below",
     initialControllerXY[0] + leftMargin + expandedWidth > videoRight
   );
 
   const startDragging = (e) => {
+    if (pointerDrag && e.pointerId !== pointerId) return;
     let style = shadowController.style;
     let dx = e.clientX - initialMouseXY[0];
     let dy = e.clientY - initialMouseXY[1];
-    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) didDrag = true;
+    if (!didDrag && Math.abs(dx) <= 2 && Math.abs(dy) <= 2) return;
+    if (!didDrag) {
+      didDrag = true;
+      video.classList.add("vcs-dragging");
+      shadowController.classList.add("dragging");
+      if (pointerDrag && typeof shadowController.setPointerCapture === "function") {
+        try {
+          shadowController.setPointerCapture(pointerId);
+          capturedPointer = true;
+        } catch (_) {}
+      }
+    }
     e.preventDefault();
+    e.stopImmediatePropagation();
     // Keep the controller inside the containing player. In particular, do not
     // let a leftward drag move it into negative coordinates where it gets clipped.
     const left = Math.min(
@@ -1001,11 +1096,18 @@ function handleDrag(video, e) {
   };
 
   const stopDragging = (event) => {
-    dragDocument.removeEventListener("mousemove", startDragging, true);
-    dragDocument.removeEventListener("mouseup", stopDragging, true);
+    if (pointerDrag && event && event.pointerId !== pointerId) return;
+    dragDocument.removeEventListener(moveEventName, startDragging, true);
+    dragDocument.removeEventListener(endEventName, stopDragging, true);
+    if (cancelEventName) dragDocument.removeEventListener(cancelEventName, stopDragging, true);
     dragWindow.removeEventListener("blur", stopDragging);
+    if (capturedPointer && typeof shadowController.releasePointerCapture === "function") {
+      try {
+        if (shadowController.hasPointerCapture(pointerId)) shadowController.releasePointerCapture(pointerId);
+      } catch (_) {}
+    }
 
-    if (didDrag && event && event.type === "mouseup") {
+    if (didDrag && event && (event.type === "mouseup" || event.type === "pointerup")) {
       event.preventDefault();
       event.stopImmediatePropagation();
 
@@ -1027,21 +1129,21 @@ function handleDrag(video, e) {
     video.classList.remove("vcs-dragging");
   };
 
-  dragDocument.addEventListener("mouseup", stopDragging, true);
-  dragDocument.addEventListener("mousemove", startDragging, true);
+  dragDocument.addEventListener(endEventName, stopDragging, true);
+  dragDocument.addEventListener(moveEventName, startDragging, true);
+  if (cancelEventName) dragDocument.addEventListener(cancelEventName, stopDragging, true);
   dragWindow.addEventListener("blur", stopDragging);
 }
 
-var timer = null;
 function showController(controller) {
   log("Showing controller", 4);
   controller.classList.add("vcs-show");
 
-  if (timer) clearTimeout(timer);
+  if (controller.vcsShowTimer) clearTimeout(controller.vcsShowTimer);
 
-  timer = setTimeout(function () {
+  controller.vcsShowTimer = setTimeout(function () {
     controller.classList.remove("vcs-show");
-    timer = false;
+    controller.vcsShowTimer = null;
     log("Hiding controller", 5);
   }, 2000);
 }

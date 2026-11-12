@@ -1,4 +1,5 @@
 const OTHER_PAGE_LIMIT = 100;
+const TAB_MEDIA_LIMIT = 1000;
 
 chrome.alarms.create("nowClear", { when: Date.now() + 3000 });  // 3秒后清理立即清理一次
 chrome.alarms.create("clear", { periodInMinutes: 60 }); // 60分钟清理一次冗余数据
@@ -109,16 +110,15 @@ function findMedia(data, retryCount = 0) {
         cacheData[data.tabId] = [];
     }
 
-    // 查重 避免CPU占用 大于500 强制开启
-    if (cacheData[data.tabId].length <= 500) {
-        const findId = data.tabId == -1 ? G.tabId : data.tabId;
-        for (let item of (cacheData[findId] || [])) {
-            if (item.url.length == data.url.length &&
-                item.cacheURL.pathname == urlParsing.pathname &&
-                item.cacheURL.host == urlParsing.host &&
-                item.cacheURL.search == urlParsing.search) { return; }
-        }
+    // 始终查重，并限制单标签页缓存，避免长时间运行的页面无限占用内存和扩展存储。
+    const findId = data.tabId == -1 ? G.tabId : data.tabId;
+    for (let item of (cacheData[findId] || [])) {
+        if (item.url.length == data.url.length &&
+            item.cacheURL.pathname == urlParsing.pathname &&
+            item.cacheURL.host == urlParsing.host &&
+            item.cacheURL.search == urlParsing.search) { return; }
     }
+    if ((cacheData[findId] || []).length >= TAB_MEDIA_LIMIT) { return; }
     chrome.tabs.get(data.tabId == -1 ? G.tabId : data.tabId, async function (webInfo) {
         if (chrome.runtime.lastError) { return; }
         const sourceUrl = data.tabId == -1 ? (data.referer || data.initiator || webInfo?.url) : webInfo?.url;

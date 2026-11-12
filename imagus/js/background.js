@@ -1,6 +1,7 @@
 "use strict";
 
 var prefs_;
+var internalHzKeys = ["css", "LDRsrc", "LDRcss", "LDRdelay", "LDRbgOpacity", "LDRanimate"];
 
 function readImagusDefaults(callback) {
   var request = new XMLHttpRequest();
@@ -26,17 +27,29 @@ function normalizeImagusPrefs(defaults, stored, sent) {
         : source[key];
     });
   });
+  internalHzKeys.forEach(function (key) { next.hz[key] = defaults.hz[key]; });
   var idle = next.hz.hideIdleCursor;
   if (idle !== null && (!Number.isInteger(idle) || idle < 0)) next.hz.hideIdleCursor = defaults.hz.hideIdleCursor;
   return next;
 }
 
+function storedHzPrefs(hz) {
+  var stored = {};
+  Object.keys(hz).forEach(function (key) {
+    if (!internalHzKeys.includes(key)) stored[key] = hz[key];
+  });
+  return stored;
+}
+
 function updatePrefs(sent, callback) {
   sent = sent || {};
   readImagusDefaults(function (defaults) {
-    cfg.get(Object.keys(defaults), function (stored) {
+    cfg.get(Object.keys(defaults).concat("captionStyleAutoDefaultApplied"), function (stored) {
+      if (!stored.captionStyleAutoDefaultApplied && stored.hz && stored.hz.capStyle === 0 && sent.hz === undefined) {
+        stored.hz = Object.assign({}, stored.hz, { capStyle: 2 });
+      }
       prefs_ = normalizeImagusPrefs(defaults, stored, sent);
-      cfg.set({ hz: prefs_.hz, keys: prefs_.keys, urlRules: prefs_.urlRules }, function () {
+      cfg.set({ hz: storedHzPrefs(prefs_.hz), keys: prefs_.keys, urlRules: prefs_.urlRules, captionStyleAutoDefaultApplied: true }, function () {
         if (typeof callback === "function") callback();
       });
     });
