@@ -1,5 +1,39 @@
 const OTHER_PAGE_LIMIT = 100;
-const TAB_MEDIA_LIMIT = 1000;
+const REFERER_DATA_LIMIT = 5000;
+const MEDIA_URL_LIMIT = 32768;
+const pendingMediaByTab = new Map();
+const tabMediaGenerations = new Map();
+const activeMediaDownloadCounts = new Map();
+const mediaDownloadIds = new Map();
+let mediaEpoch = 0;
+
+function lockMediaDownload(url) {
+    if (typeof url != "string" || !url) { return; }
+    activeMediaDownloadCounts.set(url, (activeMediaDownloadCounts.get(url) || 0) + 1);
+}
+
+function unlockMediaDownload(url) {
+    const count = activeMediaDownloadCounts.get(url) || 0;
+    if (count <= 1) { activeMediaDownloadCounts.delete(url); }
+    else { activeMediaDownloadCounts.set(url, count - 1); }
+}
+
+function trackMediaBrowserDownload(url, downloadId) {
+    if (typeof url != "string" || !url || !Number.isInteger(downloadId) || mediaDownloadIds.has(downloadId)) { return false; }
+    mediaDownloadIds.set(downloadId, url);
+    lockMediaDownload(url);
+    return true;
+}
+
+chrome.downloads.onChanged.addListener(function (delta) {
+    if (!delta || !mediaDownloadIds.has(delta.id)) { return; }
+    const state = delta.state && delta.state.current;
+    if (!state && !delta.error) { return; }
+    if (state && state != "complete" && state != "interrupted") { return; }
+    const url = mediaDownloadIds.get(delta.id);
+    mediaDownloadIds.delete(delta.id);
+    unlockMediaDownload(url);
+});
 
 chrome.alarms.create("nowClear", { when: Date.now() + 3000 });  // 3秒后清理立即清理一次
 chrome.alarms.create("clear", { periodInMinutes: 60 }); // 60分钟清理一次冗余数据
@@ -14,7 +48,11 @@ chrome.webRequest.onSendHeaders.addListener(
         if (!mediaRetrievalEnabled()) { return; }
         let referer = getReferer(data);
         if (referer) {
-            refererData["requestId" + data.requestId] = referer;
+            const requestKey = "requestId" + data.requestId;
+            if (!refererData.has(requestKey) && refererData.size >= REFERER_DATA_LIMIT) {
+                refererData.delete(refererData.keys().next().value);
+            }
+            refererData.set(requestKey, { value: referer.slice(0, 4096), tabId: data.tabId });
         }
     }, { urls: ["<all_urls>"] }, ['requestHeaders',
         chrome.webRequest.OnBeforeSendHeadersOptions.EXTRA_HEADERS].filter(Boolean)
@@ -23,9 +61,11 @@ chrome.webRequest.onSendHeaders.addListener(
 chrome.webRequest.onResponseStarted.addListener(
     function (data) {
         try {
-            if (refererData["requestId" + data.requestId]) {
-                data.referer = refererData["requestId" + data.requestId];
-                delete refererData["requestId" + data.requestId];
+            const requestKey = "requestId" + data.requestId;
+            const refererEntry = refererData.get(requestKey);
+            if (refererEntry) {
+                data.referer = refererEntry.value;
+                refererData.delete(requestKey);
             }
             findMedia(data);
         } catch (e) { console.log(e, data); }
@@ -34,7 +74,7 @@ chrome.webRequest.onResponseStarted.addListener(
 // 删除失败的refererData
 chrome.webRequest.onErrorOccurred.addListener(
     function (data) {
-        delete refererData["requestId" + data.requestId];
+        refererData.delete("requestId" + data.requestId);
     }, { urls: ["<all_urls>"] }
 );
 
@@ -45,6 +85,7 @@ function findMedia(data, retryCount = 0) {
         return;
     }
     if (!mediaRetrievalEnabled()) { return; }
+    if (typeof data.url != "string" || data.url.length > MEDIA_URL_LIMIT) { return; }
     // 屏蔽特殊页面发起的资源
     if (data.initiator != "null" &&
         data.initiator != undefined &&
@@ -106,89 +147,118 @@ function findMedia(data, retryCount = 0) {
 
     if (!filter) { return; }
 
-    if (cacheData[data.tabId] == undefined) {
-        cacheData[data.tabId] = [];
-    }
-
-    // 始终查重，并限制单标签页缓存，避免长时间运行的页面无限占用内存和扩展存储。
     const findId = data.tabId == -1 ? G.tabId : data.tabId;
-    for (let item of (cacheData[findId] || [])) {
-        if (item.url.length == data.url.length &&
-            item.cacheURL.pathname == urlParsing.pathname &&
-            item.cacheURL.host == urlParsing.host &&
-            item.cacheURL.search == urlParsing.search) { return; }
+    if (!Number.isInteger(findId) || findId < 0) { return; }
+    const items = Array.isArray(cacheData[findId]) ? cacheData[findId] : (cacheData[findId] = []);
+    let pending = pendingMediaByTab.get(findId);
+    if (!pending) {
+        pending = new Set();
+        pendingMediaByTab.set(findId, pending);
     }
-    if ((cacheData[findId] || []).length >= TAB_MEDIA_LIMIT) { return; }
+    // 异步处理数量保持有界；已完成记录达到上限后改为滚动淘汰最早条目。
+    if (pending.size >= TAB_MEDIA_LIMIT) { return; }
+    const mediaKey = data.url;
+    if (pending.has(mediaKey) || items.some(item => item && item.url === mediaKey)) { return; }
+    pending.add(mediaKey);
+    const requestEpoch = mediaEpoch;
+    const requestGeneration = tabMediaGenerations.get(findId) || 0;
     chrome.tabs.get(data.tabId == -1 ? G.tabId : data.tabId, async function (webInfo) {
-        if (chrome.runtime.lastError) { return; }
-        const sourceUrl = data.tabId == -1 ? (data.referer || data.initiator || webInfo?.url) : webInfo?.url;
-        const info = {
-            name: name,
-            url: data.url,
-            size: header["size"],
-            ext: ext,
-            type: data.mime ?? header["type"],
-            tabId: data.tabId,
-            initiator: data.initiator,
-            referer: data.referer,
-            cacheURL: { host: urlParsing.host, search: urlParsing.search, pathname: urlParsing.pathname },
-            incognito: Boolean(data.incognito)
-        };
-        // 幽灵资源 查源
-        if (info.tabId == -1 && info.referer) {
-            if (webInfo?.url == info.referer) {
-                info.tabId = webInfo.id;
-            } else {
-                const newWebInfo = await new Promise(resolve => {
-                    chrome.tabs.query({ url: info.referer }, tabs => resolve(chrome.runtime.lastError ? [] : tabs));
-                });
-                if (newWebInfo.length > 0) {
-                    webInfo = newWebInfo[0];
-                    info.tabId = newWebInfo[0].id;
+        try {
+            if (chrome.runtime.lastError || !mediaRetrievalEnabled()) { return; }
+            if (requestEpoch !== mediaEpoch || requestGeneration !== (tabMediaGenerations.get(findId) || 0)) { return; }
+            const info = {
+                name: String(name || "").slice(0, 512),
+                url: data.url,
+                size: header["size"],
+                ext: ext,
+                type: data.mime ?? header["type"],
+                tabId: data.tabId,
+                initiator: typeof data.initiator == "string" ? data.initiator.slice(0, 4096) : data.initiator,
+                referer: typeof data.referer == "string" ? data.referer.slice(0, 4096) : data.referer,
+                incognito: Boolean(data.incognito)
+            };
+            // 幽灵资源 查源
+            if (info.tabId == -1 && info.referer) {
+                if (webInfo?.url == info.referer) {
+                    info.tabId = webInfo.id;
+                } else {
+                    const newWebInfo = await new Promise(resolve => {
+                        chrome.tabs.query({ url: info.referer }, tabs => resolve(chrome.runtime.lastError ? [] : tabs));
+                    });
+                    if (newWebInfo.length > 0) {
+                        webInfo = newWebInfo[0];
+                        info.tabId = newWebInfo[0].id;
+                    }
                 }
             }
-        }
-        // 不存在 initiator 和 referer 使用web url代替initiator
-        if (info.initiator == undefined || info.initiator == "null") {
-            info.initiator = info.referer ?? webInfo?.url;
-        }
-        // 装载页面信息
-        info.title = webInfo?.title ?? "NULL";
-        // 发送到 popup
-        chrome.runtime.sendMessage(info, function () {
-            if (chrome.runtime.lastError) { return; }
-        });
-        // 储存数据
-        if (cacheData[info.tabId] == undefined) {
-            cacheData[info.tabId] = [];
-        }
-        cacheData[info.tabId].push(info);
-        // 视频切片太多 频繁储存 严重影响性能
-        // 当前标签媒体数量大于100 开启防抖 等待5秒储存 或 积累10个资源储存一次。
-        if (cacheData[info.tabId].length >= 100 && debounceCount <= 10) {
-            debounceCount++;
-            clearTimeout(debounce);
-            debounce = setTimeout(() => {
-                persistMediaData();
-                refreshIcon(info.tabId);
-            }, 5000);
-        } else {
-            clearTimeout(debounce);
-            debounceCount = 0;
+            if (!mediaRetrievalEnabled() || requestEpoch !== mediaEpoch || requestGeneration !== (tabMediaGenerations.get(findId) || 0)) { return; }
+            if (!Number.isInteger(info.tabId) || info.tabId < 0) { return; }
+            const targetItems = Array.isArray(cacheData[info.tabId]) ? cacheData[info.tabId] : (cacheData[info.tabId] = []);
+            if (targetItems.some(item => item && item.url === info.url)) { return; }
+            // 不存在 initiator 和 referer 使用web url代替initiator
+            if (info.initiator == undefined || info.initiator == "null") {
+                info.initiator = info.referer ?? webInfo?.url;
+            }
+            info.title = String(webInfo?.title ?? "NULL").slice(0, 512);
+            if (!makeRoomForMediaItem(targetItems)) { return; }
+            targetItems.push(info);
             persistMediaData();
             refreshIcon(info.tabId);
+            chrome.runtime.sendMessage(info, function () {
+                if (chrome.runtime.lastError) { return; }
+            });
+        } finally {
+            releasePendingMedia(findId, mediaKey);
         }
     });
 }
 
-// 仅接收弹窗发出的当前标签清理请求。
+function makeRoomForMediaItem(items) {
+    while (items.length >= TAB_MEDIA_LIMIT) {
+        const removableIndex = items.findIndex(item => !item || !activeMediaDownloadCounts.has(item.url));
+        if (removableIndex < 0) { return false; }
+        items.splice(removableIndex, 1);
+    }
+    return true;
+}
+
+function releasePendingMedia(tabId, mediaKey) {
+    const pending = pendingMediaByTab.get(tabId);
+    if (!pending) { return; }
+    pending.delete(mediaKey);
+    if (!pending.size) { pendingMediaByTab.delete(tabId); }
+}
+
+function resetTabMediaState(tabId) {
+    tabMediaGenerations.set(tabId, (tabMediaGenerations.get(tabId) || 0) + 1);
+    pendingMediaByTab.delete(tabId);
+    delete cacheData[tabId];
+}
+
+function clearAllMediaData() {
+    mediaEpoch++;
+    cacheData = {};
+    pendingMediaByTab.clear();
+    refererData.clear();
+    persistMediaData();
+}
+
+// 接收弹窗发出的媒体数据读取与清理请求。
 chrome.runtime.onMessage.addListener(function (Message, _sender, sendResponse) {
+    if (Message.Message == "trackMediaDownload") {
+        sendResponse({ ok: trackMediaBrowserDownload(Message.url, Message.downloadId) });
+        return false;
+    }
     if (Message.Message == "getMediaData") {
         sendResponse({ ok: true, items: cacheData[Message.tabId] || [] });
         return false;
     }
     if (Message.Message == "clearData" && Message.type) {
-        delete cacheData[Message.tabId];
+        if (Message.all) {
+            clearAllMediaData();
+        } else {
+            resetTabMediaState(Message.tabId);
+        }
         persistMediaData();
         SetIcon({ tabId: Message.tabId });
         clearRedundant();
@@ -210,7 +280,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 // 标签更新 清除数据
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
     if (changeInfo.status == "loading") {
-        delete cacheData[tabId];
+        resetTabMediaState(tabId);
         persistMediaData();
         SetIcon({ tabId: tabId });
     }
@@ -218,9 +288,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
 // 标签关闭 清除数据
 chrome.tabs.onRemoved.addListener(function (tabId) {
     // 清理缓存数据
-    delete cacheData[tabId];
+    resetTabMediaState(tabId);
     persistMediaData();
-    refererData = {};
+    for (const [requestId, entry] of refererData) {
+        if (entry.tabId === tabId) { refererData.delete(requestId); }
+    }
 });
 
 //检查扩展名以及大小限制

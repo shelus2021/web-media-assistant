@@ -984,8 +984,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const enabled = $("#captureEnabled").checked;
     const complete = () => {
       renderCapture();
-      if (!enabled && currentTabId >= 0) {
-        chrome.runtime.sendMessage({ Message: "clearData", type: true, tabId: currentTabId }, () => void chrome.runtime.lastError);
+      if (!enabled) {
+        chrome.runtime.sendMessage({ Message: "clearData", type: true, all: true, tabId: currentTabId }, () => void chrome.runtime.lastError);
       }
     };
     save({ mediaRetrievalEnabled: enabled }, t("mediaCaptureStatus", enabledLabel(enabled)), complete);
@@ -1180,13 +1180,16 @@ document.addEventListener("DOMContentLoaded", () => {
       downloadOptions.headers = [{ name: "Referer", value: referer }];
     }
     const beginDownload = options => {
-      chrome.downloads.download(options, () => {
+      chrome.downloads.download(options, downloadId => {
         const error = chrome.runtime.lastError;
         if (error && options.headers) {
           const fallbackOptions = { ...options };
           delete fallbackOptions.headers;
           beginDownload(fallbackOptions);
           return;
+        }
+        if (!error && Number.isInteger(downloadId)) {
+          chrome.runtime.sendMessage({ Message: "trackMediaDownload", url: item.url, downloadId }, () => void chrome.runtime.lastError);
         }
         const message = error
           ? t("downloadFailed", error.message)

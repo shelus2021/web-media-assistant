@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.18 - 2026-11-14
+
+- Fixed concurrent page-load callbacks bypassing URL deduplication and the cache limit. Asynchronous work remains bounded, while each tab retains the latest 500 media records and evicts the oldest record when a new one arrives; late callbacks from a previous navigation are discarded.
+- Rolling eviction skips records involved in an active HLS conversion, Android save, or Firefox download. If all 500 records are downloading, every download record is retained and the new discovery is not added.
+- Coalesced media-cache persistence to at most one strictly serialized write every two seconds, avoiding repeated full-cache clones and overlapping `storage.local` writes during resource bursts.
+- Limited the temporary Referer cache to 5,000 entries, bounded stored URL/source/title lengths, and stopped storing the redundant parsed-URL fields previously used only for deduplication.
+- Disabling media retrieval now releases all tabs' runtime caches and pending requests instead of clearing only the current tab; tab reload and removal also release their reserved capacity.
+
 ## 0.3.17 - 2026-11-11
 
 - Fixed a white flash on desktop and mobile image-preview activation caused by the legacy light preview container and opaque loader background appearing before the image was painted; preview-container and loader appearance are now fixed transparent internals, and legacy hidden style fields are no longer read from or written to storage.

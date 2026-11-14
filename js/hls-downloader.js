@@ -905,12 +905,14 @@
         clearTimeout(record.timer);
         if (record.blobUrl) URL.revokeObjectURL(record.blobUrl);
         Promise.resolve(record.cleanup && record.cleanup()).catch(() => {});
+        unlockMediaDownload(record.sourceUrl);
     }
 
     function registerAndroidDownload(record) {
         const token = "android-" + Date.now() + "-" + nextAndroidDownloadId++;
         record.timer = setTimeout(() => releaseAndroidDownload(token), 30 * 60 * 1000);
         androidDownloads.set(token, record);
+        lockMediaDownload(record.sourceUrl);
         return token;
     }
 
@@ -949,7 +951,7 @@
 
     function saveDownload(job, blob, cleanup) {
         if (isAndroidBrowser()) {
-            return openAndroidDownload({ blob, blobUrl: "", fileName: mp4FileName(job.fileName), cleanup }).then(result => {
+            return openAndroidDownload({ blob, blobUrl: "", fileName: mp4FileName(job.fileName), sourceUrl: job.sourceUrl, cleanup }).then(result => {
                 job.androidDownloadToken = result.token;
                 job.androidDownloadActivated = result.activated;
                 return result.token;
@@ -973,6 +975,7 @@
                     Promise.resolve(cleanup && cleanup()).catch(() => {});
                 };
                 chrome.downloads.onChanged.addListener(release);
+                trackMediaBrowserDownload(job.sourceUrl, downloadId);
                 resolve(downloadId);
             });
         });
@@ -1028,6 +1031,7 @@
             job.controller.abort();
             if (temporaryFile && !downloadOwnsTemporaryFile) await temporaryFile.remove();
             jobs.delete(job.id);
+            unlockMediaDownload(job.sourceUrl);
         }
     }
 
@@ -1100,6 +1104,7 @@
                 allowMemoryMerge: message.allowMemoryMerge === true,
                 controller: new AbortController()
             };
+            lockMediaDownload(job.sourceUrl);
             jobs.set(id, job);
             sendResponse({ ok: true, jobId: id });
             runJob(job);

@@ -2,7 +2,7 @@
 var G = {};
 // 缓存数据
 var cacheData = { init: true };
-var refererData = {};
+var refererData = new Map();
 // 当前活动标签页。
 chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     G.tabId = tabs[0] && Number.isInteger(tabs[0].id) ? tabs[0].id : -1;
@@ -16,17 +16,20 @@ G.OptionLists = {
 };
 G.initSyncComplete = false;
 
-// Init
-InitOptions();
-
 // 正则预编译
 const reFilename = /filename="?([^"]+)"?/;
 const reRange = /([\d]+)-([\d]+)\/([\d]+)/;
 const reYoutube = /&(range|rbuf|rn|cver|altitags|pot|fallback_count|sq)=[^&]*/g;
 
-// 防抖
-let debounce = undefined;
-let debounceCount = 0;
+// 媒体数据写入必须合并并串行执行，避免资源突发时同时克隆多份完整缓存。
+const TAB_MEDIA_LIMIT = 500;
+const MEDIA_PERSIST_DELAY = 2000;
+let mediaPersistTimer = undefined;
+let mediaPersistInFlight = false;
+let mediaPersistDirty = false;
+
+// Init
+InitOptions();
 
 // 初始变量
 function InitOptions() {
@@ -36,7 +39,13 @@ function InitOptions() {
             cacheData = {};
             return;
         }
-        cacheData = items.MediaData;
+        cacheData = items.MediaData && typeof items.MediaData == "object" ? items.MediaData : {};
+        for (const [tabId, mediaItems] of Object.entries(cacheData)) {
+            if (Array.isArray(mediaItems) && mediaItems.length > TAB_MEDIA_LIMIT) {
+                cacheData[tabId] = mediaItems.slice(-TAB_MEDIA_LIMIT);
+            }
+        }
+        discardMediaDataIfDisabled();
     });
     // 读取sync配置数据 交给全局变量G
     chrome.storage.sync.get(G.OptionLists, function (items) {
@@ -45,18 +54,46 @@ function InitOptions() {
         items.Type = normalizeTypeOptions(items.Type);
         G = { ...G, ...items };
         G.initSyncComplete = true;
+        discardMediaDataIfDisabled();
     });
+}
+
+function discardMediaDataIfDisabled() {
+    if (!G.initSyncComplete || G.mediaRetrievalEnabled === true) { return; }
+    if (typeof clearAllMediaData == "function") {
+        clearAllMediaData();
+    } else {
+        cacheData = {};
+        refererData.clear();
+        persistMediaData();
+    }
 }
 
 // Private-window media stays in memory and is never written to storage.local.
 function persistMediaData() {
+    mediaPersistDirty = true;
+    if (mediaPersistTimer != undefined || mediaPersistInFlight) { return; }
+    mediaPersistTimer = setTimeout(flushMediaData, MEDIA_PERSIST_DELAY);
+}
+
+function flushMediaData() {
+    if (mediaPersistTimer != undefined) {
+        clearTimeout(mediaPersistTimer);
+        mediaPersistTimer = undefined;
+    }
+    if (mediaPersistInFlight || !mediaPersistDirty) { return; }
+    mediaPersistDirty = false;
     const persisted = {};
     for (const [tabId, items] of Object.entries(cacheData)) {
         if (!Array.isArray(items)) { continue; }
         const nonPrivateItems = items.filter(item => !item.incognito);
         if (nonPrivateItems.length) { persisted[tabId] = nonPrivateItems; }
     }
-    chrome.storage.local.set({ MediaData: persisted });
+    mediaPersistInFlight = true;
+    chrome.storage.local.set({ MediaData: persisted }, function () {
+        mediaPersistInFlight = false;
+        if (mediaPersistDirty) { persistMediaData(); }
+    });
 }
 // 监听变化，新值给全局变量
 chrome.storage.onChanged.addListener(function (changes, namespace) {
@@ -77,6 +114,15 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
         G[key] = newValue === undefined && Object.prototype.hasOwnProperty.call(G.OptionLists, key)
             ? G.OptionLists[key]
             : newValue;
+        if (key == "mediaRetrievalEnabled" && G[key] !== true) {
+            if (typeof clearAllMediaData == "function") {
+                clearAllMediaData();
+            } else {
+                cacheData = {};
+                refererData.clear();
+                persistMediaData();
+            }
+        }
     }
 });
 
@@ -113,12 +159,16 @@ function clearRedundant() {
             // 清理 缓存数据
             for (let key in cacheData) {
                 if (!allTabId.includes(parseInt(key))) {
-                    delete cacheData[key];
+                    if (typeof resetTabMediaState == "function") {
+                        resetTabMediaState(parseInt(key));
+                    } else {
+                        delete cacheData[key];
+                    }
                 }
             }
             persistMediaData();
         }
     });
-    refererData = {};
+    refererData.clear();
 }
 
